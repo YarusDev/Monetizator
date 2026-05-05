@@ -1,5 +1,6 @@
 // V2.0.1 - Triggering fresh deploy
-import { useEffect, useState } from 'react';
+// Monetizator v2.0.1 - Money Matrix Protocol
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, MessageCircle, Phone, ArrowRight } from 'lucide-react';
 import { supabase } from './lib/supabase';
