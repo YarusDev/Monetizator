@@ -41,66 +41,63 @@ function useMonetizatorContent() {
 }
 
 const Hero = () => (
-  <section className="min-h-[90vh] flex flex-col items-center justify-center p-6 text-center bg-[#050505] relative overflow-hidden">
-    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-emerald/20 blur-[120px] rounded-full animate-pulse" />
-    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-brand-emerald/10 blur-[120px] rounded-full" />
+  <section className="min-h-[95dvh] flex flex-col justify-end p-8 pb-20 relative overflow-hidden bg-brand-obsidian">
+    {/* Money Scanner Effect */}
+    <div className="scanner-line" />
+    
+    <div className="absolute top-[-20%] right-[-10%] w-[80%] h-[60%] bg-brand-emerald/10 blur-[140px] rounded-full animate-pulse" />
     
     <motion.div 
-      initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
       className="relative z-10"
     >
-      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
-        <div className="w-2 h-2 rounded-full bg-brand-emerald animate-ping" />
-        <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest">
-          The Money Matrix Protocol
+      <div className="flex items-center gap-3 mb-12">
+        <div className="h-[1px] w-12 bg-brand-emerald" />
+        <span className="font-mono text-[10px] text-brand-emerald uppercase tracking-[0.3em] font-bold">
+          System Protocol: Active
         </span>
       </div>
 
-      <h1 className="text-[42px] font-display font-black leading-[1.1] mb-8 tracking-tight">
+      <h1 className="text-[52px] font-display font-black leading-[0.95] mb-10 tracking-tighter text-white">
         ВЫЯВЛЯЕМ <br/>
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-emerald via-emerald-400 to-emerald-600">СКРЫТЫЕ АКТИВЫ</span> <br/>
-        ТВОЕГО БИЗНЕСА
+        <span className="text-brand-emerald">СКРЫТЫЕ АКТИВЫ</span> <br/>
+        БИЗНЕСА
       </h1>
       
-      <p className="text-white/50 text-lg mb-10 max-w-sm mx-auto leading-relaxed">
-        Инвентаризация 7 источников прибыли. <br/>
-        Узнай, где ты теряешь <span className="text-white font-bold">от 500к в месяц.</span>
-      </p>
-
-      <div className="flex flex-col gap-4">
-        <button className="emerald-gradient text-white px-10 py-5 rounded-2xl font-black text-lg shadow-[0_20px_50px_rgba(16,185,129,0.3)] flex items-center justify-center gap-3 active:scale-95 transition-all group">
-          ЗАПИСАТЬСЯ НА РАЗБОР
-          <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-        </button>
-        <p className="text-white/30 text-[10px] uppercase tracking-tighter">
-          * осталось 3 места на эту неделю
+      <div className="flex flex-col gap-12 max-w-[320px]">
+        <p className="text-brand-zinc/50 text-base leading-relaxed">
+          Инвентаризация 7 источников прибыли. <br/>
+          Узнай, где ты теряешь <span className="text-brand-zinc font-bold underline decoration-brand-emerald/30 underline-offset-4">от 500к в месяц.</span>
         </p>
-      </div>
-    </motion.div>
 
-    <motion.div 
-      animate={{ y: [0, 10, 0] }}
-      transition={{ repeat: Infinity, duration: 2 }}
-      className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-20"
-    >
-      <ChevronDown className="w-8 h-8" />
+        <div className="relative group">
+          <button className="w-full emerald-gradient text-white h-20 rounded-2xl font-black text-lg flex items-center justify-center gap-4 active:scale-95 transition-all shadow-2xl shadow-brand-emerald/20">
+            ЗАПУСТИТЬ РАЗБОР
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+              <ArrowRight className="w-5 h-5" />
+            </div>
+          </button>
+          <div className="absolute -bottom-6 left-0 right-0 text-center">
+            <span className="font-mono text-[9px] text-brand-emerald/40 uppercase tracking-widest">
+              Available slots: 03 // Weekly
+            </span>
+          </div>
+        </div>
+      </div>
     </motion.div>
   </section>
 );
 
 const RealityMirror = () => (
-  <section className="py-24 p-6 bg-black relative">
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-24 bg-gradient-to-b from-brand-emerald/50 to-transparent" />
-    
-    <div className="text-center mb-16">
-      <h2 className="text-3xl font-display font-black mb-4">ЗЕРКАЛО РЕАЛЬНОСТИ</h2>
-      <p className="text-white/40 text-sm">Твои симптомы — это последствия неверной системы</p>
+  <section className="py-32 p-8 bg-brand-obsidian relative">
+    <div className="flex items-center gap-4 mb-16">
+      <h2 className="text-4xl font-display font-black tracking-tighter text-white">ЗЕРКАЛО <br/> РЕАЛЬНОСТИ</h2>
+      <div className="h-[2px] flex-grow bg-white/5" />
     </div>
 
-    <div className="space-y-6">
+    <div className="space-y-4">
       {[
         { t: "Стеклянный потолок", d: "Обороты растут, но чистая прибыль стоит на месте или падает." },
         { t: "Зависимость от трафика", d: "Если завтра реклама подорожает в 2 раза — бизнес умрет." },
@@ -108,15 +105,15 @@ const RealityMirror = () => (
       ].map((item, i) => (
         <motion.div 
           key={i}
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -10 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: i * 0.2 }}
-          className="glass-card p-8 group hover:bg-white/10 transition-colors relative overflow-hidden"
+          transition={{ delay: i * 0.15 }}
+          className="glass-card p-10 group hover:bg-white/[0.08] transition-all"
         >
-          <div className="absolute top-0 left-0 w-1 h-full bg-brand-emerald opacity-30 group-hover:opacity-100 transition-opacity" />
-          <h3 className="text-xl font-bold mb-3 text-brand-emerald">{item.t}</h3>
-          <p className="text-white/60 leading-relaxed">{item.d}</p>
+          <div className="font-mono text-[10px] text-brand-emerald mb-4 uppercase tracking-[0.2em]">Symptom_0{i + 1}</div>
+          <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-brand-emerald transition-colors leading-tight">{item.t}</h3>
+          <p className="text-brand-zinc/40 text-sm leading-relaxed">{item.d}</p>
         </motion.div>
       ))}
     </div>
@@ -133,41 +130,41 @@ const ParadigmShift = () => (
 );
 
 const Inventory7 = () => (
-  <section className="py-24 p-6 bg-[#0a0a0a] relative overflow-hidden">
-    <div className="absolute top-10 right-[-20%] w-64 h-64 bg-brand-emerald/5 blur-[100px] rounded-full" />
-    
-    <div className="mb-12">
-      <h2 className="text-3xl font-display font-black mb-4 uppercase">7 ИСТОЧНИКОВ ПРИБЫЛИ</h2>
-      <p className="text-white/40 leading-relaxed">
+  <section className="py-32 p-8 bg-brand-obsidian relative">
+    <div className="mb-20">
+      <div className="flex items-baseline gap-4 mb-4">
+        <span className="font-mono text-5xl text-brand-emerald/20 font-black">07</span>
+        <h2 className="text-4xl font-display font-black tracking-tighter text-white uppercase">ИСТОЧНИКОВ ПРИБЫЛИ</h2>
+      </div>
+      <p className="text-brand-zinc/30 text-sm leading-relaxed max-w-[280px]">
         Бизнес — это математика. Мы разбираем каждую переменную, чтобы найти «течь».
       </p>
     </div>
 
-    <div className="grid gap-3 relative z-10">
+    <div className="grid gap-2">
       {[
-        { n: "Трафик", d: "Как и откуда приходят лиды" },
-        { n: "Конверсия", d: "Насколько эффективно ты продаешь" },
-        { n: "Средний чек", d: "Как поднять цену без потери клиентов" },
-        { n: "LTV", d: "Сколько раз один клиент покупает у тебя" },
-        { n: "Рефералка", d: "Как заставить клиентов приводить новых" },
-        { n: "Команда", d: "Эффективность каждого рубля ФОТ" },
-        { n: "Продукт", d: "Ценность, за которую готовы платить х10" }
+        { n: "Трафик", d: "Аудит каналов привлечения" },
+        { n: "Конверсия", d: "Эффективность воронки" },
+        { n: "Средний чек", d: "Ценообразование и допродажи" },
+        { n: "LTV", d: "Цикл жизни клиента" },
+        { n: "Рефералка", d: "Виральность продукта" },
+        { n: "Команда", d: "КПД каждого сотрудника" },
+        { n: "Продукт", d: "Ценность и упаковка" }
       ].map((item, idx) => (
         <motion.div 
           key={idx}
-          whileHover={{ x: 5 }}
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: idx * 0.1 }}
-          className="flex items-start gap-5 p-5 bg-white/[0.03] rounded-2xl border border-white/[0.05] hover:border-brand-emerald/30 transition-all cursor-default group"
+          transition={{ delay: idx * 0.05 }}
+          className="flex items-center justify-between p-6 rounded-2xl bg-white/[0.02] border border-white/[0.03] hover:bg-white/[0.05] transition-all group"
         >
-          <div className="w-10 h-10 shrink-0 rounded-xl emerald-gradient flex items-center justify-center text-lg font-black shadow-lg shadow-brand-emerald/20">
-            {idx + 1}
-          </div>
-          <div>
+          <div className="flex flex-col">
+            <span className="font-mono text-[10px] text-brand-emerald/40 mb-1">SOURCE_0{idx + 1}</span>
             <h4 className="font-bold text-white group-hover:text-brand-emerald transition-colors">{item.n}</h4>
-            <p className="text-white/40 text-xs mt-1">{item.d}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] text-brand-zinc/30 uppercase tracking-widest">{item.d}</p>
           </div>
         </motion.div>
       ))}
@@ -216,39 +213,30 @@ const LossCalculator = () => {
   const [loss] = useState(1250000);
   
   return (
-    <section className="py-24 p-6 bg-black relative">
-      <div className="p-10 rounded-[40px] bg-gradient-to-br from-[#111] to-black border border-white/5 relative overflow-hidden text-center">
-        <div className="absolute top-0 right-0 p-4 opacity-5">
-          <MessageCircle className="w-32 h-32 rotate-12" />
+    <section className="py-32 p-8 bg-brand-obsidian">
+      <div className="p-12 rounded-[40px] bg-white/[0.02] border border-white/[0.05] relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10">
+          <span className="font-mono text-8xl font-black text-brand-emerald italic">LOSS</span>
         </div>
         
-        <h2 className="text-xs font-bold text-white/40 mb-6 uppercase tracking-widest">
-          ТВОЯ ЦЕНА БЕЗДЕЙСТВИЯ
+        <h2 className="font-mono text-[10px] text-brand-emerald mb-12 uppercase tracking-[0.4em] font-bold">
+          Critical System Leakage
         </h2>
         
         <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          className="text-5xl font-black text-brand-emerald mb-4 tracking-tighter tabular-nums"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          className="text-6xl font-display font-black text-white mb-6 tracking-tighter tabular-nums"
         >
-          {loss.toLocaleString()} <span className="text-xl font-display">₽</span>
+          {loss.toLocaleString()} <span className="text-2xl font-mono text-brand-emerald">₽</span>
         </motion.div>
         
-        <p className="text-white/40 text-sm max-w-[250px] mx-auto leading-relaxed mb-8">
+        <p className="text-brand-zinc/40 text-sm max-w-[240px] leading-relaxed mb-12">
           Это сумма, которую ты НЕ заработал за прошлый месяц из-за дыр в системе.
         </p>
 
-        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-10">
-          <motion.div 
-            initial={{ width: 0 }}
-            whileInView={{ width: "70%" }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            className="h-full emerald-gradient"
-          />
-        </div>
-
-        <button className="w-full py-5 rounded-2xl bg-white text-black font-black hover:bg-brand-emerald hover:text-white transition-all shadow-xl active:scale-95">
-          ИСПРАВИТЬ ЭТО
+        <button className="w-full h-16 rounded-2xl bg-brand-zinc text-brand-obsidian font-black text-sm uppercase tracking-widest hover:bg-brand-emerald hover:text-white transition-all active:scale-95">
+          УСТРАНИТЬ УТЕЧКУ
         </button>
       </div>
     </section>
@@ -256,10 +244,10 @@ const LossCalculator = () => {
 };
 
 const ProductLadder = () => (
-  <section className="py-24 p-6 bg-black">
-    <div className="text-center mb-16">
-      <h2 className="text-3xl font-display font-black mb-4 uppercase">КАК МЫ НАЧНЕМ РАБОТУ?</h2>
-      <p className="text-white/40 max-w-xs mx-auto">3 формата взаимодействия в зависимости от твоих целей</p>
+  <section className="py-32 p-8 bg-brand-obsidian">
+    <div className="mb-20">
+      <h2 className="text-4xl font-display font-black mb-6 uppercase tracking-tighter text-white">ПРОТОКОЛ <br/> РАБОТЫ</h2>
+      <p className="text-brand-zinc/30 text-sm max-w-[240px]">3 формата взаимодействия для кратного роста прибыли</p>
     </div>
 
     <div className="space-y-4">
@@ -268,16 +256,17 @@ const ProductLadder = () => (
         { n: "Стратсессия", p: "150 000 ₽", d: "Полный день. Глубокое проектирование системы 7 источников для твоего бизнеса.", c: "Выбрать" },
         { n: "Сопровождение", p: "от 500к", d: "Работа до результата. Моя команда внедряет систему в твой бизнес за тебя.", c: "Узнать условия" }
       ].map((item, i) => (
-        <div key={i} className="p-8 rounded-[32px] bg-brand-graphite border border-white/5 hover:border-brand-emerald/20 transition-all">
-          <h3 className="font-bold text-xl mb-2">{item.n}</h3>
-          <p className="text-white/40 text-xs leading-relaxed mb-6">
+        <div key={i} className="glass-card p-10 hover:bg-white/[0.08] transition-all">
+          <div className="font-mono text-[10px] text-brand-emerald mb-6 uppercase tracking-widest font-bold">Phase_0{i + 1}</div>
+          <h3 className="font-display font-black text-2xl mb-4 text-white uppercase">{item.n}</h3>
+          <p className="text-brand-zinc/40 text-sm leading-relaxed mb-10">
             {item.d}
           </p>
-          <div className="flex items-center justify-between">
-            <div className="text-brand-emerald font-black text-2xl tracking-tighter">
+          <div className="flex items-center justify-between pt-8 border-t border-white/5">
+            <div className="text-white font-mono font-black text-2xl tracking-tighter tabular-nums">
               {item.p}
             </div>
-            <button className="px-6 py-3 rounded-xl bg-white text-black font-black text-xs uppercase tracking-widest hover:bg-brand-emerald hover:text-white transition-all">
+            <button className="h-12 px-6 rounded-xl bg-brand-emerald text-brand-obsidian font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">
               {item.c}
             </button>
           </div>
@@ -288,23 +277,29 @@ const ProductLadder = () => (
 );
 
 const HardFilter = () => (
-  <section className="py-24 p-8 bg-[#1a0505] border-y border-red-900/20 relative overflow-hidden">
+  <section className="py-32 p-8 bg-[#1a0505] border-y border-red-900/10 relative overflow-hidden">
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-red-600/5 blur-[120px] rounded-full" />
     
-    <div className="relative z-10 text-center">
-      <h2 className="text-brand-gold font-black text-3xl mb-8 tracking-tighter uppercase">
-        ТЕБЕ НЕ НУЖЕН <br/> МОНЕТИЗАТОР, ЕСЛИ:
+    <div className="relative z-10">
+      <div className="flex items-center gap-3 mb-10">
+        <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+        <span className="font-mono text-[10px] text-red-600 font-bold uppercase tracking-[0.3em]">Warning: Entry Criteria</span>
+      </div>
+      
+      <h2 className="text-white font-display font-black text-4xl mb-12 tracking-tighter uppercase leading-[0.9]">
+        КОМУ МЫ <br/> <span className="text-red-600/50">ОТКАЖЕМ:</span>
       </h2>
-      <div className="space-y-6 max-w-xs mx-auto">
+      
+      <div className="space-y-6">
         {[
-          "Ты ищешь «волшебную кнопку» или быстрые деньги без продукта",
-          "Твой бизнес строится на обмане или низком качестве",
-          "Ты не готов делегировать и менять свои старые убеждения",
-          "Твой оборот меньше 300 000 ₽ в месяц (пока рано)"
+          "Ищешь «волшебную кнопку» без продукта",
+          "Бизнес на обмане или низком качестве",
+          "Не готов делегировать и менять убеждения",
+          "Оборот меньше 300 000 ₽ в месяц"
         ].map((item, i) => (
-          <div key={i} className="flex items-start gap-4 text-left">
-            <span className="text-brand-gold font-bold text-lg mt-[-2px]">×</span>
-            <p className="text-white/60 text-sm leading-relaxed">{item}</p>
+          <div key={i} className="flex items-start gap-4 p-6 rounded-2xl bg-white/[0.02] border border-white/[0.03]">
+            <span className="text-red-600 font-mono font-bold text-lg leading-none mt-1">0{i + 1}</span>
+            <p className="text-brand-zinc/50 text-sm leading-relaxed">{item}</p>
           </div>
         ))}
       </div>
@@ -340,15 +335,15 @@ const FAQ = () => (
 );
 
 const Footer = () => (
-  <footer className="py-24 p-8 bg-[#050505] border-t border-white/5 text-center">
-    <div className="mb-12">
-      <div className="w-20 h-20 rounded-full emerald-gradient mx-auto mb-6 flex items-center justify-center p-0.5">
-        <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-3xl">👨‍💼</div>
+  <footer className="py-32 p-8 bg-brand-obsidian border-t border-white/5 relative">
+    <div className="mb-20">
+      <div className="w-24 h-24 rounded-full bg-white/[0.02] border border-white/5 mx-auto mb-10 flex items-center justify-center p-1">
+        <div className="w-full h-full rounded-full emerald-gradient flex items-center justify-center text-4xl">👨‍💼</div>
       </div>
-      <h2 className="text-2xl font-display font-black mb-2 uppercase tracking-tight">Сергей Осипук</h2>
-      <p className="text-brand-emerald font-bold text-xs uppercase tracking-widest mb-8">Основатель методологии «Монетизатор»</p>
+      <h2 className="text-3xl font-display font-black mb-2 uppercase tracking-tighter text-white">Сергей Осипук</h2>
+      <p className="text-brand-emerald font-mono font-bold text-[10px] uppercase tracking-[0.3em] mb-12">Founder // Monetizator Protocol</p>
       
-      <div className="flex justify-center gap-6">
+      <div className="grid grid-cols-2 gap-4">
         {[
           { icon: MessageCircle, label: "Telegram", href: "https://t.me/osipuk" },
           { icon: Phone, label: "WhatsApp", href: "https://wa.me/..." }
@@ -358,25 +353,22 @@ const Footer = () => (
             href={social.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center gap-2 group"
+            className="flex items-center gap-4 p-6 glass-card group transition-all"
           >
-            <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center group-hover:bg-brand-emerald group-hover:border-brand-emerald transition-all">
-              <social.icon className="w-6 h-6 text-white/40 group-hover:text-white" />
-            </div>
-            <span className="text-[10px] text-white/20 uppercase font-bold tracking-widest">{social.label}</span>
+            <social.icon className="w-5 h-5 text-brand-emerald group-hover:scale-110 transition-transform" />
+            <span className="text-[10px] text-white font-bold uppercase tracking-widest">{social.label}</span>
           </a>
         ))}
       </div>
     </div>
     
-    <div className="pt-12 border-t border-white/5 flex flex-col items-center gap-4">
-      <div className="text-[10px] text-white/20 uppercase tracking-[0.3em]">
-        M O N E T I Z A T O R  &copy;  2 0 2 6
+    <div className="pt-12 border-t border-white/5 flex flex-col items-center gap-6">
+      <div className="font-mono text-[9px] text-brand-zinc/20 uppercase tracking-[0.5em]">
+        MONETIZATOR // 2026 // ALL RIGHTS RESERVED
       </div>
-      <div className="flex gap-4 text-[10px] text-white/10 uppercase font-bold">
-        <a href="#" className="hover:text-white transition-colors">Политика конфиденциальности</a>
-        <span>|</span>
-        <a href="#" className="hover:text-white transition-colors">Оферта</a>
+      <div className="flex gap-6 text-[9px] text-brand-zinc/30 uppercase font-bold tracking-widest">
+        <a href="#" className="hover:text-brand-emerald transition-colors">Privacy</a>
+        <a href="#" className="hover:text-brand-emerald transition-colors">Terms</a>
       </div>
     </div>
   </footer>
@@ -520,9 +512,9 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-brand-emerald selection:text-white">
-      <div className="max-w-[460px] mx-auto min-h-screen bg-black shadow-2xl shadow-brand-emerald/5 relative">
-        <main className="relative pb-32">
+    <div className="min-h-screen bg-[#000] text-brand-zinc font-sans selection:bg-brand-emerald selection:text-black">
+      <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian shadow-2xl shadow-brand-emerald/5 relative border-x border-white/5">
+        <main className="relative pb-40">
           <Hero />
           <RealityMirror />
           <ParadigmShift />

@@ -1,46 +1,77 @@
 @import "tailwindcss";
 
 @theme {
+  /* Matrix Emerald - calibrated saturation */
   --color-brand-emerald: #10b981;
-  --color-brand-emerald-dark: #065f46;
-  --color-brand-graphite: #1f2937;
-  --color-brand-gold: #fbbf24;
+  --color-brand-emerald-dim: #064e3b;
   
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Montserrat", sans-serif;
+  /* The Greyscale - using absolute neutrals */
+  --color-brand-obsidian: #050505;
+  --color-brand-charcoal: #0a0a0a;
+  --color-brand-zinc: #f4f4f5;
+  --color-brand-slate: #71717a;
+  
+  /* Typography - switching to Geist for a more modern, premium feel */
+  --font-sans: "Geist", "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", monospace;
+  --font-display: "Geist", sans-serif;
 }
 
 :root {
-  background-color: #0a0a0a;
-  color: #ffffff;
+  background-color: var(--color-brand-obsidian);
+  color: var(--color-brand-zinc);
 }
 
 body {
   margin: 0;
   display: flex;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: #000;
+  font-family: var(--font-sans);
 }
 
 #root {
   width: 100%;
   max-width: 460px;
-  background-color: #0a0a0a;
-  min-height: 100vh;
+  background-color: var(--color-brand-obsidian);
+  min-height: 100dvh;
   position: relative;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.8);
   overflow-x: hidden;
 }
 
-/* Glassmorphism utility */
+/* Premium Component Utilities */
 .glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2rem;
 }
 
 .emerald-gradient {
-  background: linear-gradient(135deg, #10b981 0%, #065f46 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.text-matrix {
+  color: var(--color-brand-emerald);
+  font-family: var(--font-mono);
+  letter-spacing: -0.05em;
+}
+
+/* Money Scanner Animation */
+@keyframes scanner {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: translateY(200%); opacity: 0; }
+}
+
+.scanner-line {
+  position: absolute;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, var(--color-brand-emerald), transparent);
+  pointer-events: none;
+  z-index: 50;
+  animation: scanner 8s infinite ease-in-out;
 }
