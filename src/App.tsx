@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   MessageCircle, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck, 
-  ChevronRight, ArrowDown, Award, BarChart3, Rocket, Handshake, ExternalLink
+  ChevronRight, ArrowDown, Award, BarChart3, Rocket, Handshake, ExternalLink, Send, Share2
 } from 'lucide-react';
 import { leadService } from './lib/leadService';
 
@@ -210,6 +210,49 @@ const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
   );
 };
 
+const SpinningCoin = ({ size = "w-48 h-48", className = "" }: { size?: string, className?: string }) => (
+  <div className={`flex justify-center relative ${className}`}>
+    <motion.div 
+      animate={{ 
+        scale: [1, 1.05, 1],
+        filter: [
+          'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))',
+          'drop-shadow(0 0 40px rgba(212, 175, 55, 0.7))',
+          'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))'
+        ]
+      }}
+      transition={{ 
+        duration: 4,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }}
+      className="relative z-20"
+    >
+      <motion.img 
+        src="assets/LogoCoin.png" 
+        alt="Logo Coin" 
+        animate={{ rotateY: 360 }}
+        transition={{ 
+          duration: 12, 
+          repeat: Infinity, 
+          ease: "linear" 
+        }}
+        className={`${size} object-contain`}
+      />
+    </motion.div>
+    {/* Glow background */}
+    <motion.div 
+      animate={{ 
+        backgroundColor: ['#10b981', '#D4AF37', '#10b981'],
+        opacity: [0.2, 0.4, 0.2],
+        scale: [1, 1.5, 1]
+      }}
+      transition={{ duration: 4, repeat: Infinity }}
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 blur-[70px] rounded-full z-10"
+    />
+  </div>
+);
+
 const LossCalculator = () => {
   const [leads, setLeads] = useState(100);
   const [conv, setConv] = useState(5);
@@ -217,8 +260,9 @@ const LossCalculator = () => {
   const [retention, setRetention] = useState(0);
 
   const currentRevenue = leads * (conv / 100) * avgCheck;
-  const potentialConv = conv * 1.42; // +42% growth
-  const potentialRetention = currentRevenue * (retention / 100) * 0.5; // Estimated retention boost
+  // Multiplier for potential: 3-5x as requested by user (let's use 3.5x for impact)
+  const potentialConv = conv * 3.5; 
+  const potentialRetention = currentRevenue * (retention / 100) * 1.5; 
   const totalPotential = (leads * (potentialConv / 100) * avgCheck) + potentialRetention - currentRevenue;
 
   return (
@@ -247,7 +291,7 @@ const LossCalculator = () => {
           <div className="space-y-4">
             <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-brand-zinc/40">
               <span>Средний чек (₽)</span>
-              <span className="text-white">{avgCheck.toLocaleString()} ₽</span>
+              <span className="text-white whitespace-nowrap">{avgCheck.toLocaleString()} ₽</span>
             </div>
             <input type="range" min="1000" max="500000" step="1000" value={avgCheck} onChange={(e) => setAvgCheck(Number(e.target.value))} className="w-full h-2 bg-white/5 rounded-lg appearance-none cursor-pointer accent-brand-emerald" />
           </div>
@@ -267,7 +311,7 @@ const LossCalculator = () => {
           </div>
           <div className="relative z-10">
             <div className="text-xs font-black text-brand-gold uppercase tracking-widest mb-4">Ваш скрытый потенциал</div>
-            <div className="text-5xl font-display font-black text-brand-gold mb-3 tracking-tighter">
+            <div className="text-5xl font-display font-black text-brand-gold mb-3 tracking-tighter whitespace-nowrap">
               +{totalPotential.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽
             </div>
             <div className="text-[11px] text-brand-zinc/50 uppercase font-bold tracking-widest">ДОПОЛНИТЕЛЬНО К ТЕКУЩЕЙ ПРИБЫЛИ</div>
@@ -275,7 +319,7 @@ const LossCalculator = () => {
         </div>
         
         <p className="text-[10px] text-brand-zinc/30 leading-relaxed text-center uppercase tracking-widest font-bold">
-          *Расчет произведен на основе среднего роста показателей +42% после внедрения системы монетизации
+          *Расчет произведен на основе потенциала роста показателей до 3.5x после внедрения системы монетизации
         </p>
       </div>
     </BlockWrapper>
@@ -304,7 +348,7 @@ export default function App() {
         name: userName,
         contact: 'Telegram Direct',
         quiz_responses: quizData,
-        calculation_data: { potential_boost: 0.42 }
+        calculation_data: { potential_boost: 3.5 }
       };
 
       const { session_uuid } = await leadService.submitLead(leadData);
@@ -327,74 +371,35 @@ export default function App() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
             
             {/* Spinning Coin Section */}
-            <div className="flex justify-center mb-10 relative">
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.05, 1],
-                  filter: [
-                    'drop-shadow(0 0 15px rgba(16, 185, 129, 0.5))',
-                    'drop-shadow(0 0 30px rgba(212, 175, 55, 0.6))',
-                    'drop-shadow(0 0 15px rgba(16, 185, 129, 0.5))'
-                  ]
-                }}
-                transition={{ 
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="relative z-20"
-              >
-                <motion.img 
-                  src="assets/LogoCoin.png" 
-                  alt="Logo Coin" 
-                  animate={{ rotateY: 360 }}
-                  transition={{ 
-                    duration: 12, 
-                    repeat: Infinity, 
-                    ease: "linear" 
-                  }}
-                  className="w-32 h-32 object-contain"
-                />
-              </motion.div>
-              {/* Glow background */}
-              <motion.div 
-                animate={{ 
-                  backgroundColor: ['#10b981', '#D4AF37', '#10b981'],
-                  opacity: [0.15, 0.3, 0.15],
-                  scale: [1, 1.4, 1]
-                }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 blur-[60px] rounded-full z-10"
-              />
-            </div>
+            <SpinningCoin className="mb-10" />
 
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-2 h-2 rounded-full bg-brand-emerald shadow-[0_0_12px_#10b981]" />
-              <span className="font-mono text-[10px] text-brand-emerald uppercase tracking-[0.4em] font-black">Money Matrix Protocol v2.2.0</span>
+              <div className="w-2.5 h-2.5 rounded-full bg-brand-emerald shadow-[0_0_12px_#10b981]" />
+              <span className="font-mono text-[11px] text-brand-emerald uppercase tracking-[0.4em] font-black">Money Matrix Protocol v2.3.0</span>
             </div>
 
-            <h1 className="text-5xl font-display font-black leading-[0.85] mb-10 tracking-tighter text-white uppercase">
+            <h1 className="text-5xl font-display font-black leading-[0.85] mb-12 tracking-tighter text-white uppercase">
               Ваш бизнес уже <span className="text-brand-emerald">заработал</span> больше, чем вы видите на счету.
             </h1>
 
             {!quizCompleted ? (
               <div className="space-y-12">
                 <div className="space-y-6">
-                  <p className="text-white font-black text-2xl leading-tight uppercase tracking-tighter">Пора активировать скрытые ресурсы.</p>
-                  <p className="text-brand-zinc/50 text-base leading-relaxed font-medium">
+                  <p className="text-white font-black text-3xl leading-tight uppercase tracking-tighter">Пора активировать скрытые ресурсы.</p>
+                  <p className="text-brand-zinc/50 text-lg leading-relaxed font-medium">
                     Сергей Осипук. Монетизатор ресурсов. Помогаю находить дополнительную прибыль в базе, связях и продуктах без лишних затрат на рекламу.
                   </p>
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-6">
                   {[
                     "+380 000 ₽ за 3 дня — результат на своих ресурсах",
                     "15 из 17 человек находят деньги в 1-й день",
                     "15 заявок в день с 0 вложений в рекламу"
                   ].map((text, i) => (
-                    <div key={i} className="flex items-center gap-4 text-base font-bold text-white/90">
-                      <div className="w-6 h-6 rounded-lg bg-brand-emerald/10 flex items-center justify-center shrink-0">
-                        <Check className="w-4 h-4 text-brand-emerald" />
+                    <div key={i} className="flex items-center gap-5 text-lg font-bold text-white/90">
+                      <div className="w-8 h-8 rounded-xl bg-brand-emerald/10 flex items-center justify-center shrink-0 border border-brand-emerald/20">
+                        <Check className="w-5 h-5 text-brand-emerald" />
                       </div>
                       <span>{text}</span>
                     </div>
@@ -403,22 +408,22 @@ export default function App() {
 
                 <button 
                   onClick={() => document.getElementById('quiz-anchor')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="w-full h-18 emerald-gradient text-white rounded-2xl font-black text-base uppercase tracking-widest flex items-center justify-center gap-4 active:scale-95 transition-all shadow-2xl shadow-brand-emerald/30"
+                  className="w-full h-20 emerald-gradient text-white rounded-2xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-4 active:scale-95 transition-all shadow-2xl shadow-brand-emerald/30"
                 >
                   НАЙТИ МОИ ТОЧКИ РОСТА
                   <ArrowDown className="w-6 h-6 animate-bounce" />
                 </button>
-                <p className="text-[10px] text-brand-zinc/40 text-center italic uppercase font-black tracking-widest">
+                <p className="text-[11px] text-brand-zinc/40 text-center italic uppercase font-black tracking-widest">
                   Бесплатный экспресс-разбор ваших ресурсов за 30 минут по методу Монетизатора
                 </p>
 
-                <div id="quiz-anchor" className="pt-24 space-y-8">
+                <div id="quiz-anchor" className="pt-24 space-y-10">
                   {/* Photo before quiz */}
                   <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl">
                     <img src="assets/Квиз.jpg" alt="Start Quiz" className="w-full h-auto" />
                   </div>
                   
-                  <p className="text-lg text-center font-medium text-brand-zinc/70">
+                  <p className="text-xl text-center font-medium text-brand-zinc/70">
                     Ответьте на <span className="text-white font-black">5 вопросов</span> и получите <span className="text-brand-emerald font-black">персональную</span> карту из <span className="text-white font-black">3-х точек роста</span>
                   </p>
                   <Quiz onComplete={handleQuizComplete} />
@@ -428,11 +433,11 @@ export default function App() {
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 py-10">
                 <div className="p-10 rounded-[50px] bg-brand-emerald/10 border border-brand-emerald/30 shadow-2xl">
                   <h3 className="text-3xl font-black text-white mb-6 uppercase leading-tight tracking-tighter">Анализ завершен!</h3>
-                  <p className="text-base text-brand-zinc/70 leading-relaxed mb-8">
+                  <p className="text-lg text-brand-zinc/70 leading-relaxed mb-8">
                     Ваш персональный план активации прибыли готов. 
-                    На основе ваших ответов мы определили, что ваш главный «спящий» актив — <span className="text-brand-emerald font-black text-lg">{quizData[1]?.split('(')[0].trim() || 'Ваши ресурсы'}</span>.
+                    На основе ваших ответов мы определили, что ваш главный «спящий» актив — <span className="text-brand-emerald font-black text-xl">{quizData[1]?.split('(')[0].trim() || 'Ваши ресурсы'}</span>.
                   </p>
-                  <p className="text-sm text-brand-zinc/50 leading-relaxed mb-10 italic font-medium">
+                  <p className="text-base text-brand-zinc/50 leading-relaxed mb-10 italic font-medium">
                     Я уже подготовил инструкции по его монетизации. Подтвердите имя, чтобы забрать их в Telegram:
                   </p>
                   <input 
@@ -441,12 +446,12 @@ export default function App() {
                   />
                   <button 
                     onClick={handleFinalSubmit} disabled={isSubmitting || !userName.trim()}
-                    className="w-full h-18 emerald-gradient text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-4 active:scale-95 transition-all shadow-xl shadow-brand-emerald/40 disabled:opacity-50"
+                    className="w-full h-20 emerald-gradient text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-4 active:scale-95 transition-all shadow-xl shadow-brand-emerald/40 disabled:opacity-50"
                   >
                     {isSubmitting ? 'ОТПРАВКА...' : 'ПОЛУЧИТЬ РЕЗУЛЬТАТ В TELEGRAM'}
                     <MessageCircle className="w-6 h-6" />
                   </button>
-                  <p className="text-[10px] text-brand-zinc/40 mt-8 text-center uppercase font-black tracking-widest">
+                  <p className="text-[11px] text-brand-zinc/40 mt-8 text-center uppercase font-black tracking-widest">
                     + Карта из 3-х точек роста и слот на диагностику внутри
                   </p>
                 </div>
@@ -543,21 +548,21 @@ export default function App() {
         <BlockWrapper className="bg-brand-emerald/[0.02]">
           <SectionHeader title="Реклама не исправляет хаос — она его усиливает." align="center" />
           <div className="space-y-12 max-w-[400px] mx-auto">
-            <p className="text-brand-zinc/60 text-base leading-relaxed text-center font-medium">
+            <p className="text-brand-zinc/60 text-lg leading-relaxed text-center font-medium">
               Большинство маркетологов совершают преступление против вашего кошелька: они советуют «долить трафика» в систему, которая дырява как решето.
             </p>
             
-            <div className="space-y-5">
+            <div className="space-y-6">
               {[
                 "Если ваша база не разобрана — вы теряете 70% прибыли.",
                 "Если вы продаете «в лоб» без входного продукта — вы переплачиваете за клиента в 5 раз.",
                 "Если нетворкинг для вас — это спам визитками, вы живете в иллюзии связей."
               ].map((text, i) => (
                 <div key={i} className="flex gap-5 items-center p-6 rounded-3xl bg-white/[0.02] border border-white/5 shadow-inner">
-                  <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
-                    <X className="w-5 h-5 text-red-500" />
+                  <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center shrink-0 border border-red-500/20">
+                    <X className="w-6 h-6 text-red-500" />
                   </div>
-                  <p className="text-base text-brand-zinc/80 font-bold leading-tight">{text}</p>
+                  <p className="text-lg text-brand-zinc/80 font-bold leading-tight">{text}</p>
                 </div>
               ))}
             </div>
@@ -632,7 +637,7 @@ export default function App() {
                     <div className="p-8 flex flex-col flex-1">
                       <div className="flex justify-between items-start mb-4">
                         <h4 className="text-xl font-black text-white uppercase tracking-tight leading-tight">{s.name}</h4>
-                        <span className="font-mono font-black text-brand-emerald">{s.price}</span>
+                        <span className="font-mono font-black text-brand-emerald whitespace-nowrap">{s.price}</span>
                       </div>
                       <p className="text-base text-brand-zinc/50 leading-relaxed mb-8 flex-1 font-medium">{s.desc}</p>
                       <button 
@@ -667,7 +672,7 @@ export default function App() {
                     <div className="p-8 flex flex-col flex-1">
                       <div className="flex justify-between items-start mb-4">
                         <h4 className="text-xl font-black text-white uppercase tracking-tight leading-tight">{s.name}</h4>
-                        <span className="font-mono font-black text-brand-gold">{s.price}</span>
+                        <span className="font-mono font-black text-brand-gold whitespace-nowrap">{s.price}</span>
                       </div>
                       <p className="text-base text-brand-zinc/50 leading-relaxed mb-8 flex-1 font-medium">{s.desc}</p>
                       <button 
@@ -690,24 +695,32 @@ export default function App() {
                 <div className="h-[1px] flex-1 bg-white/5" />
               </div>
               
-              <div className="glass-card overflow-hidden group flex flex-col border-white/10">
-                <div className="aspect-video overflow-hidden">
-                  <img src="assets/Шаг 3.jpg" alt="Сопровождение" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                </div>
-                <div className="p-8">
-                  <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4 leading-tight">Индивидуальное сопровождение</h4>
-                  <p className="text-base text-brand-zinc/50 leading-relaxed mb-8 font-medium">Полноценное внедрение всех инструментов монетизации под моим личным контролем до результата.</p>
-                  <div className="flex justify-between items-center mb-8 p-6 rounded-2xl bg-white/5 border border-white/10">
-                    <span className="text-sm font-bold text-brand-zinc/60 uppercase">Стоимость</span>
-                    <span className="font-mono font-black text-brand-emerald text-xl">от 50 000 ₽ / мес</span>
+              <div className="grid gap-6">
+                {[
+                  { name: "Групповое наставничество", price: "от 20 000 ₽", img: "assets/Шаг 3.jpg", desc: "Работа в мини-группе: внедрение инструментов под моим присмотром." },
+                  { name: "Ведение стратегии", price: "от 30 000 ₽", img: "assets/Мастермайнд.jpg", desc: "Я становлюсь вашим архитектором монетизации на постоянной основе." },
+                  { name: "Индивидуальное сопровождение", price: "от 50 000 ₽", img: "assets/Стратегическая сессия.jpg", desc: "Полноценное внедрение всех инструментов до твердого результата." }
+                ].map((s, i) => (
+                  <div key={i} className="glass-card overflow-hidden group flex flex-col h-full border-white/10">
+                    <div className="aspect-video overflow-hidden">
+                      <img src={s.img} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    </div>
+                    <div className="p-8 flex flex-col flex-1">
+                      <h4 className="text-xl font-black text-white uppercase tracking-tight mb-4 leading-tight">{s.name}</h4>
+                      <p className="text-base text-brand-zinc/50 leading-relaxed mb-8 flex-1 font-medium">{s.desc}</p>
+                      <div className="flex justify-between items-center mb-8 p-6 rounded-2xl bg-white/5 border border-white/10">
+                        <span className="text-xs font-bold text-brand-zinc/40 uppercase">Стоимость</span>
+                        <span className="font-mono font-black text-brand-emerald text-lg whitespace-nowrap">{s.price}</span>
+                      </div>
+                      <button 
+                        onClick={() => window.location.href = `https://t.me/monetizator_osipuk?text=${encodeURIComponent(`Хочу узнать про ${s.name}`)}`}
+                        className="w-full h-16 bg-brand-emerald text-brand-obsidian rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-brand-emerald/20 active:scale-95 transition-all flex items-center justify-center gap-3"
+                      >
+                        Зайти в {i === 2 ? 'сопровождение' : 'продукт'}
+                      </button>
+                    </div>
                   </div>
-                  <button 
-                    onClick={() => window.location.href = 'https://t.me/monetizator_osipuk?text=Хочу в сопровождение'}
-                    className="w-full h-16 bg-brand-emerald text-brand-obsidian rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-brand-emerald/20 active:scale-95 transition-all"
-                  >
-                    Зайти в сопровождение
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -719,20 +732,29 @@ export default function App() {
             <div className="absolute top-0 right-0 p-8">
               <Rocket className="w-12 h-12 text-brand-emerald opacity-20" />
             </div>
+            
             <SectionHeader title="Давайте найдем ваши деньги вместе. Бесплатно." align="center" />
-            <div className="space-y-8 text-center mb-12">
+            
+            <div className="space-y-10 text-center mb-12">
+              <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl mb-8">
+                <img src="assets/Квиз.jpg" alt="Map" className="w-full h-auto opacity-80" />
+              </div>
+              
               <p className="text-brand-zinc/60 text-lg leading-relaxed font-medium">
                 Я предлагаю вам не слова, а тест-драйв моего метода.
               </p>
+              
               <div className="p-8 rounded-[40px] bg-brand-emerald/10 border border-brand-emerald/20 shadow-inner">
                 <h4 className="font-black text-white text-xl mb-3 uppercase tracking-tight">Экспресс-диагностика</h4>
                 <p className="text-base text-brand-zinc/70 leading-relaxed font-medium italic">Мы просканируем ваш проект за 20-30 минут и подсветим точки роста бесплатно.</p>
               </div>
+              
               <p className="text-red-500 text-xs uppercase font-black tracking-widest">Внимание: Беру только 3–5 человек в неделю.</p>
             </div>
+            
             <button 
               onClick={() => window.location.href = 'https://t.me/monetizator_osipuk'}
-              className="w-full h-18 emerald-gradient text-white rounded-2xl font-black text-base uppercase tracking-widest flex items-center justify-center gap-4 active:scale-95 transition-all shadow-2xl shadow-brand-emerald/30"
+              className="w-full h-20 emerald-gradient text-white rounded-2xl font-black text-base uppercase tracking-widest flex items-center justify-center gap-4 active:scale-95 transition-all shadow-2xl shadow-brand-emerald/30"
             >
               Записаться на разбор
               <MessageCircle className="w-6 h-6" />
@@ -742,7 +764,9 @@ export default function App() {
 
         {/* Блок 11: Контакты */}
         <footer className="py-24 px-8 border-t border-white/5 bg-black/20">
+          <SpinningCoin className="mb-16" size="w-32 h-32" />
           <SectionHeader title="Перестаньте искать деньги далеко." subTitle="Давайте найдем их у вас под ногами." />
+          
           <div className="grid gap-5 mb-20">
             <a href="https://t.me/monetizator_osipuk" className="flex items-center gap-6 p-8 rounded-[40px] bg-white/[0.03] border border-white/10 group transition-all">
               <div className="w-16 h-16 rounded-2xl bg-brand-emerald/10 flex items-center justify-center group-hover:scale-110 transition-transform border border-brand-emerald/20">
@@ -753,7 +777,28 @@ export default function App() {
                 <div className="font-black text-white text-lg">@monetizator_osipuk</div>
               </div>
             </a>
+
+            <a href="https://t.me/+P3O1S_T2vR80NmIy" className="flex items-center gap-6 p-8 rounded-[40px] bg-white/[0.03] border border-white/10 group transition-all">
+              <div className="w-16 h-16 rounded-2xl bg-brand-emerald/10 flex items-center justify-center group-hover:scale-110 transition-transform border border-brand-emerald/20">
+                <Send className="w-8 h-8 text-brand-emerald" />
+              </div>
+              <div>
+                <div className="text-[11px] text-brand-emerald font-black uppercase tracking-widest mb-1">Telegram Канал</div>
+                <div className="font-black text-white text-lg">Зайти в канал</div>
+              </div>
+            </a>
+
+            <a href="https://wa.me/79219001331" className="flex items-center gap-6 p-8 rounded-[40px] bg-white/[0.03] border border-white/10 group transition-all">
+              <div className="w-16 h-16 rounded-2xl bg-brand-emerald/10 flex items-center justify-center group-hover:scale-110 transition-transform border border-brand-emerald/20">
+                <Share2 className="w-8 h-8 text-brand-emerald" />
+              </div>
+              <div>
+                <div className="text-[11px] text-brand-emerald font-black uppercase tracking-widest mb-1">WhatsApp</div>
+                <div className="font-black text-white text-lg">Написать в WhatsApp</div>
+              </div>
+            </a>
           </div>
+
           <div className="pt-24 flex flex-col items-center gap-6 opacity-20">
             <div className="font-mono text-[9px] uppercase tracking-[0.6em] text-center font-black">MONETIZATOR // PROTOCOL // 2026</div>
           </div>
