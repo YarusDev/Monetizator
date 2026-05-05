@@ -41,51 +41,38 @@ function useMonetizatorContent() {
 }
 
 const Hero = () => (
-  <section className="min-h-[95dvh] flex flex-col justify-end p-8 pb-20 relative overflow-hidden bg-brand-obsidian">
-    {/* Money Scanner Effect */}
+  <section className="min-h-[85dvh] flex flex-col justify-center p-8 relative overflow-hidden bg-brand-obsidian">
     <div className="scanner-line" />
-    
-    <div className="absolute top-[-20%] right-[-10%] w-[80%] h-[60%] bg-brand-emerald/10 blur-[140px] rounded-full animate-pulse" />
+    <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[50%] bg-brand-emerald/10 blur-[120px] rounded-full animate-pulse" />
     
     <motion.div 
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
       className="relative z-10"
     >
-      <div className="flex items-center gap-3 mb-12">
-        <div className="h-[1px] w-12 bg-brand-emerald" />
-        <span className="font-mono text-[10px] text-brand-emerald uppercase tracking-[0.3em] font-bold">
-          System Protocol: Active
+      <div className="flex items-center gap-2 mb-8">
+        <div className="w-1.5 h-1.5 rounded-full bg-brand-emerald shadow-[0_0_10px_#10b981]" />
+        <span className="font-mono text-[9px] text-brand-emerald uppercase tracking-[0.3em] font-bold">
+          System Protocol: Online
         </span>
       </div>
 
-      <h1 className="text-[52px] font-display font-black leading-[0.95] mb-10 tracking-tighter text-white">
+      <h1 className="text-[52px] font-display font-black leading-[0.85] mb-10 tracking-tighter text-white uppercase">
         ВЫЯВЛЯЕМ <br/>
-        <span className="text-brand-emerald">СКРЫТЫЕ АКТИВЫ</span> <br/>
-        БИЗНЕСА
+        <span className="text-brand-emerald">СКРЫТЫЕ</span> <br/>
+        <span className="text-brand-gold">АКТИВЫ</span>
       </h1>
       
-      <div className="flex flex-col gap-12 max-w-[320px]">
-        <p className="text-brand-zinc/50 text-base leading-relaxed">
-          Инвентаризация 7 источников прибыли. <br/>
-          Узнай, где ты теряешь <span className="text-brand-zinc font-bold underline decoration-brand-emerald/30 underline-offset-4">от 500к в месяц.</span>
-        </p>
+      <p className="text-brand-zinc/50 text-sm leading-relaxed max-w-[280px] mb-12 border-l-2 border-brand-emerald/20 pl-4">
+        Инвентаризация 7 источников прибыли. <br/>
+        Узнай, где ты теряешь <span className="text-brand-zinc font-bold">от 500к в месяц.</span>
+      </p>
 
-        <div className="relative group">
-          <button className="w-full emerald-gradient text-white h-20 rounded-2xl font-black text-lg flex items-center justify-center gap-4 active:scale-95 transition-all shadow-2xl shadow-brand-emerald/20">
-            ЗАПУСТИТЬ РАЗБОР
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-              <ArrowRight className="w-5 h-5" />
-            </div>
-          </button>
-          <div className="absolute -bottom-6 left-0 right-0 text-center">
-            <span className="font-mono text-[9px] text-brand-emerald/40 uppercase tracking-widest">
-              Available slots: 03 // Weekly
-            </span>
-          </div>
-        </div>
-      </div>
+      <button className="w-full emerald-gradient text-white h-16 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-brand-emerald/10">
+        ЗАПУСТИТЬ РАЗБОР
+        <ArrowRight className="w-4 h-4" />
+      </button>
     </motion.div>
   </section>
 );
@@ -173,10 +160,10 @@ const Inventory7 = () => (
 );
 
 const Cases = () => (
-  <section className="py-24 p-6 bg-brand-graphite relative">
-    <div className="mb-12">
-      <h2 className="text-3xl font-display font-black mb-4 tracking-tight uppercase">Факты вместо гипотез</h2>
-      <p className="text-white/40">Результаты моих клиентов после внедрения системы</p>
+  <section className="py-32 p-8 bg-brand-obsidian">
+    <div className="flex items-center gap-4 mb-16">
+      <h2 className="text-4xl font-display font-black tracking-tighter text-white uppercase">ФАКТЫ <br/> РЕЗУЛЬТАТА</h2>
+      <div className="h-[2px] flex-grow bg-white/5" />
     </div>
 
     <div className="space-y-6">
@@ -189,18 +176,16 @@ const Cases = () => (
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-black/50 rounded-[32px] p-8 border border-brand-gold/10 hover:border-brand-gold/30 transition-all relative overflow-hidden group"
+          className="glass-card p-10 group hover:bg-white/[0.08] transition-all relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 p-6">
-            <ArrowRight className="w-6 h-6 text-brand-gold/20 group-hover:text-brand-gold transition-colors -rotate-45" />
-          </div>
-          <div className="text-[10px] text-brand-gold font-bold tracking-[0.2em] uppercase mb-4 opacity-70">
+          <div className="font-mono text-[10px] text-brand-gold mb-6 uppercase tracking-widest font-bold opacity-60">Case_Study_0{i + 1}</div>
+          <div className="text-[10px] text-brand-zinc/30 font-bold uppercase tracking-widest mb-4">
             {item.t}
           </div>
-          <div className="text-4xl font-black text-white mb-4 tracking-tighter">
+          <div className="text-5xl font-display font-black text-white mb-6 tracking-tighter group-hover:text-brand-gold transition-colors">
             {item.v}
           </div>
-          <p className="text-white/50 text-sm leading-relaxed">
+          <p className="text-brand-zinc/40 text-sm leading-relaxed">
             {item.d}
           </p>
         </motion.div>
@@ -214,29 +199,29 @@ const LossCalculator = () => {
   
   return (
     <section className="py-32 p-8 bg-brand-obsidian">
-      <div className="p-12 rounded-[40px] bg-white/[0.02] border border-white/[0.05] relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-10">
-          <span className="font-mono text-8xl font-black text-brand-emerald italic">LOSS</span>
+      <div className="p-10 rounded-[40px] bg-white/[0.03] border border-white/[0.08] relative overflow-hidden text-center">
+        <div className="absolute -top-10 -right-10 opacity-5">
+          <span className="font-mono text-9xl font-black text-brand-gold italic">CASH</span>
         </div>
         
-        <h2 className="font-mono text-[10px] text-brand-emerald mb-12 uppercase tracking-[0.4em] font-bold">
-          Critical System Leakage
+        <h2 className="font-mono text-[9px] text-brand-emerald mb-8 uppercase tracking-[0.4em] font-bold opacity-60">
+          Financial Leakage Audit
         </h2>
         
         <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          className="text-6xl font-display font-black text-white mb-6 tracking-tighter tabular-nums"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          className="text-5xl font-display font-black text-brand-gold mb-4 tracking-tighter tabular-nums"
         >
-          {loss.toLocaleString()} <span className="text-2xl font-mono text-brand-emerald">₽</span>
+          {loss.toLocaleString()} <span className="text-xl font-mono opacity-50">₽</span>
         </motion.div>
         
-        <p className="text-brand-zinc/40 text-sm max-w-[240px] leading-relaxed mb-12">
-          Это сумма, которую ты НЕ заработал за прошлый месяц из-за дыр в системе.
+        <p className="text-brand-zinc/40 text-[11px] max-w-[220px] mx-auto leading-relaxed mb-10">
+          Сумма, которую ты <span className="text-white font-bold uppercase">не заработал</span> за прошлый месяц из-за отсутствия системы.
         </p>
 
-        <button className="w-full h-16 rounded-2xl bg-brand-zinc text-brand-obsidian font-black text-sm uppercase tracking-widest hover:bg-brand-emerald hover:text-white transition-all active:scale-95">
-          УСТРАНИТЬ УТЕЧКУ
+        <button className="w-full h-14 rounded-xl bg-brand-gold text-brand-obsidian font-black text-[10px] uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-brand-gold/10">
+          ВЕРНУТЬ ДЕНЬГИ В БИЗНЕС
         </button>
       </div>
     </section>
@@ -245,28 +230,32 @@ const LossCalculator = () => {
 
 const ProductLadder = () => (
   <section className="py-32 p-8 bg-brand-obsidian">
-    <div className="mb-20">
-      <h2 className="text-4xl font-display font-black mb-6 uppercase tracking-tighter text-white">ПРОТОКОЛ <br/> РАБОТЫ</h2>
-      <p className="text-brand-zinc/30 text-sm max-w-[240px]">3 формата взаимодействия для кратного роста прибыли</p>
+    <div className="mb-16">
+      <h2 className="text-4xl font-display font-black mb-4 uppercase tracking-tighter text-white">ПРОТОКОЛ <br/> РАБОТЫ</h2>
+      <div className="w-12 h-1 bg-brand-emerald/30" />
     </div>
 
     <div className="space-y-4">
       {[
-        { n: "Блиц-разбор", p: "15 000 ₽", d: "60 минут. Твоя точка А, декомпозиция и пошаговый план выхода на новый уровень.", c: "Записаться" },
-        { n: "Стратсессия", p: "150 000 ₽", d: "Полный день. Глубокое проектирование системы 7 источников для твоего бизнеса.", c: "Выбрать" },
-        { n: "Сопровождение", p: "от 500к", d: "Работа до результата. Моя команда внедряет систему в твой бизнес за тебя.", c: "Узнать условия" }
+        { n: "Блиц-разбор", p: "15 000 ₽", d: "Диагностика 7 источников прибыли и пошаговый план выхода на новый уровень.", c: "Записаться", gold: false },
+        { n: "Сопровождение", p: "от 500к", d: "Работа до результата. Моя команда внедряет систему в твой бизнес за тебя.", c: "Узнать условия", gold: true }
       ].map((item, i) => (
-        <div key={i} className="glass-card p-10 hover:bg-white/[0.08] transition-all">
-          <div className="font-mono text-[10px] text-brand-emerald mb-6 uppercase tracking-widest font-bold">Phase_0{i + 1}</div>
-          <h3 className="font-display font-black text-2xl mb-4 text-white uppercase">{item.n}</h3>
-          <p className="text-brand-zinc/40 text-sm leading-relaxed mb-10">
+        <div key={i} className={`glass-card p-8 relative overflow-hidden ${item.gold ? 'border-brand-gold/30 bg-brand-gold/[0.05]' : ''}`}>
+          {item.gold && (
+            <div className="absolute top-0 right-0 px-4 py-1 bg-brand-gold text-brand-obsidian font-mono text-[8px] font-bold uppercase tracking-widest rounded-bl-lg">
+              PREMIUM
+            </div>
+          )}
+          <div className={`font-mono text-[9px] mb-4 uppercase tracking-widest font-bold ${item.gold ? 'text-brand-gold' : 'text-brand-emerald'}`}>Phase_0{i + 1}</div>
+          <h3 className="font-display font-black text-2xl mb-4 text-white uppercase leading-none">{item.n}</h3>
+          <p className="text-brand-zinc/50 text-xs leading-relaxed mb-8">
             {item.d}
           </p>
-          <div className="flex items-center justify-between pt-8 border-t border-white/5">
-            <div className="text-white font-mono font-black text-2xl tracking-tighter tabular-nums">
+          <div className="flex flex-col gap-4 pt-6 border-t border-white/5">
+            <div className={`font-mono font-black text-2xl tracking-tighter ${item.gold ? 'text-brand-gold' : 'text-white'}`}>
               {item.p}
             </div>
-            <button className="h-12 px-6 rounded-xl bg-brand-emerald text-brand-obsidian font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">
+            <button className={`h-12 w-full rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${item.gold ? 'gold-gradient text-white' : 'bg-brand-emerald text-brand-obsidian'}`}>
               {item.c}
             </button>
           </div>

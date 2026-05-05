@@ -4,6 +4,8 @@
   /* Matrix Emerald - calibrated saturation */
   --color-brand-emerald: #10b981;
   --color-brand-emerald-dim: #064e3b;
+  --color-brand-gold: #d4af37;
+  --color-brand-gold-dim: #78350f;
   
   /* The Greyscale - using absolute neutrals */
   --color-brand-obsidian: #050505;
@@ -51,6 +53,10 @@ body {
 
 .emerald-gradient {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #d4af37 0%, #b45309 100%);
 }
 
 .text-matrix {
