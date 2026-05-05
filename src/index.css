@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-emerald: #10b981;
+  --color-brand-emerald-dark: #065f46;
+  --color-brand-graphite: #1f2937;
+  --color-brand-gold: #fbbf24;
+  
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Montserrat", sans-serif;
+}
+
+:root {
+  background-color: #0a0a0a;
+  color: #ffffff;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #000;
+}
+
+#root {
+  width: 100%;
+  max-width: 460px;
+  background-color: #0a0a0a;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+  overflow-x: hidden;
+}
+
+/* Glassmorphism utility */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
+.emerald-gradient {
+  background: linear-gradient(135deg, #10b981 0%, #065f46 100%);
+}
