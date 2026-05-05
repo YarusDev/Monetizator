@@ -9,25 +9,34 @@ import { trackingService } from './lib/trackingService';
 function useMonetizatorContent() {
   const [blocks, setBlocks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchContent() {
-      const { data, error } = await supabase
-        .from('m_content_blocks')
-        .select('*')
-        .order('order_index');
-      
-      if (!error && data) {
-        setBlocks(data);
+    console.log('App: Starting content load from Supabase...');
+    async function load() {
+      try {
+        const { data, error: sbError } = await supabase
+          .from('m_content_blocks')
+          .select('*')
+          .order('order_index', { ascending: true });
+        
+        if (sbError) throw sbError;
+        
+        console.log('App: Blocks loaded:', data?.length || 0);
+        if (data) setBlocks(data);
+      } catch (e: any) {
+        console.error('App: Failed to load blocks:', e);
+        setError(e.message || 'Unknown error');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
-    fetchContent();
+    load();
   }, []);
 
   const getBlock = (key: string) => blocks.find(b => b.block_key === key) || {};
 
-  return { blocks, getBlock, loading };
+  return { blocks, getBlock, loading, error };
 }
 
 const Hero = () => (
@@ -479,12 +488,29 @@ const LeadModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }
 };
 
 export default function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { loading } = useMonetizatorContent();
+  const { blocks, loading, error } = useMonetizatorContent();
+  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+
+  console.log('App: Rendering. Loading:', loading, 'Error:', error);
 
   useEffect(() => {
     trackingService.init();
   }, []);
+
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-10 text-center">
+      <div>
+        <h1 className="text-2xl font-bold text-red-500 mb-4">Ошибка загрузки</h1>
+        <p className="opacity-70">{error}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-6 px-6 py-2 bg-brand-emerald text-black font-bold rounded-full"
+        >
+          Попробовать снова
+        </button>
+      </div>
+    </div>
+  );
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-black">
@@ -506,8 +532,8 @@ export default function App() {
           <HardFilter />
           <FAQ />
           <Footer />
-          <StickyCTA onClick={() => setIsModalOpen(true)} />
-          <LeadModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+          <StickyCTA onClick={() => setIsLeadModalOpen(true)} />
+          <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} />
         </main>
       </div>
     </div>
