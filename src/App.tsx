@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { 
   MessageCircle, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck, 
@@ -18,7 +18,8 @@ const QUIZ_STEPS: QuizStep[] = [
   {
     question: "В какой роли вы сейчас создаете ценность?",
     options: [
-      "Я эксперт / Частный специалист (продаю свои знания)",
+      "Я эксперт / Частный специалист (продаю свои знания, оказываю услуги)",
+      "Я предприниматель",
       "Я собственник бизнеса (у меня есть команда и продукт)",
       "Я организатор / Лидер сообщества (вокруг меня много людей)"
     ],
@@ -766,7 +767,11 @@ export default function App() {
               <Rocket className="w-12 h-12 text-brand-emerald opacity-20" />
             </div>
             
-            <SectionHeader title="Давайте найдем ваши деньги вместе. Бесплатно." align="center" />
+            <div className="mb-8 text-center">
+              <h2 className="text-white font-display font-black text-3xl mb-6 tracking-tighter uppercase leading-[1.1]">
+                Давайте найдем ваши деньги вместе. Бесплатно.
+              </h2>
+            </div>
             
             <div className="space-y-10 text-center mb-12">
               <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl mb-8 relative">
