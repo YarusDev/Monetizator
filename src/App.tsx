@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   MessageCircle, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck, 
-  ChevronRight, ArrowDown, Award, BarChart3, Rocket, Settings2, Handshake
+  ChevronRight, ArrowDown, Award, BarChart3, Rocket, Handshake, ExternalLink
 } from 'lucide-react';
 import { leadService } from './lib/leadService';
 
@@ -325,6 +325,49 @@ export default function App() {
         <BlockWrapper className="min-h-[90dvh] flex flex-col justify-center">
           <div className="scanner-line" />
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
+            
+            {/* Spinning Coin Section */}
+            <div className="flex justify-center mb-10 relative">
+              <motion.div 
+                animate={{ 
+                  scale: [1, 1.05, 1],
+                  filter: [
+                    'drop-shadow(0 0 15px rgba(16, 185, 129, 0.5))',
+                    'drop-shadow(0 0 30px rgba(212, 175, 55, 0.6))',
+                    'drop-shadow(0 0 15px rgba(16, 185, 129, 0.5))'
+                  ]
+                }}
+                transition={{ 
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="relative z-20"
+              >
+                <motion.img 
+                  src="assets/LogoCoin.png" 
+                  alt="Logo Coin" 
+                  animate={{ rotateY: 360 }}
+                  transition={{ 
+                    duration: 12, 
+                    repeat: Infinity, 
+                    ease: "linear" 
+                  }}
+                  className="w-32 h-32 object-contain"
+                />
+              </motion.div>
+              {/* Glow background */}
+              <motion.div 
+                animate={{ 
+                  backgroundColor: ['#10b981', '#D4AF37', '#10b981'],
+                  opacity: [0.15, 0.3, 0.15],
+                  scale: [1, 1.4, 1]
+                }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 blur-[60px] rounded-full z-10"
+              />
+            </div>
+
             <div className="flex items-center gap-3 mb-8">
               <div className="w-2 h-2 rounded-full bg-brand-emerald shadow-[0_0_12px_#10b981]" />
               <span className="font-mono text-[10px] text-brand-emerald uppercase tracking-[0.4em] font-black">Money Matrix Protocol v2.2.0</span>
