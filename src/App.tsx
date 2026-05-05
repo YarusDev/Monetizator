@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown, MessageCircle, Phone, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck } from 'lucide-react';
-import { supabase } from './lib/supabase';
+import { MessageCircle, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck } from 'lucide-react';
 
 // --- Types ---
 interface QuizStep {
@@ -72,8 +71,8 @@ const CASES = [
 
 // --- Components ---
 
-const BlockWrapper = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-  <section className={`py-24 px-6 relative overflow-hidden ${className}`}>
+const BlockWrapper = ({ children, className = "", id }: { children: React.ReactNode, className?: string, id?: string }) => (
+  <section id={id} className={`py-24 px-6 relative overflow-hidden ${className}`}>
     {children}
   </section>
 );
