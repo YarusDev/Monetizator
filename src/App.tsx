@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   MessageCircle, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck, 
-  ChevronRight, ArrowDown, ExternalLink, Award, PlayCircle, BarChart3, Rocket
+  ChevronRight, ArrowDown, Award, BarChart3, Rocket
 } from 'lucide-react';
 import { leadService } from './lib/leadService';
 
@@ -66,7 +66,7 @@ const CASES = [
   {
     id: 3,
     title: "Инвест-недвижимость (Коллаборации)",
-    header: Новая премиум-аудитория",
+    header: "Новая премиум-аудитория",
     sub: "Как превратить одно знакомство в систему взаимных продаж.",
     stats: "Доступ к VIP-клиентам + прибыль",
     problem: "Поиск целевых клиентов через стандартные каналы обходился слишком дорого.",
@@ -250,7 +250,7 @@ export default function App() {
     try {
       const leadData = {
         name: userName,
-        phone: 'Not provided', // Simplified as we use direct TG redirect
+        contact: 'Telegram Direct', // Updated to match service schema
         quiz_responses: quizData,
         calculation_data: { turnover, potential: turnover * 0.42 }
       };
