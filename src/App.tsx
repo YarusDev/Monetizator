@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { 
-  MessageCircle, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck, 
-  ChevronRight, ArrowDown, Award, BarChart3, Rocket, Handshake, ExternalLink, Send, Share2, AlertTriangle, ChevronLeft
+  MessageCircle, ArrowRight, Timer, TrendingUp, Users, 
+  ChevronRight, ArrowDown, Award, BarChart3, ExternalLink, ChevronLeft
 } from 'lucide-react';
 import { leadService } from './lib/leadService';
 
@@ -587,7 +587,11 @@ export default function App() {
     if (!userName.trim()) return;
     setIsSubmitting(true);
     try {
-      const { session_uuid } = await leadService.submitLead({ name: userName, quiz_responses: quizData });
+      const { session_uuid } = await leadService.submitLead({ 
+        name: userName, 
+        contact: 'Telegram',
+        quiz_responses: quizData 
+      });
       window.location.href = `https://t.me/monetizator_osipuk?start=${session_uuid}`;
     } catch (err) { console.error(err); } 
     finally { setIsSubmitting(false); }
