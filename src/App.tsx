@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { 
   MessageCircle, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck, 
-  ChevronRight, ArrowDown, Award, BarChart3, Rocket, Handshake, ExternalLink, Send, Share2
+  ChevronRight, ArrowDown, Award, BarChart3, Rocket, Handshake, ExternalLink, Send, Share2, AlertTriangle
 } from 'lucide-react';
 import { leadService } from './lib/leadService';
 
@@ -137,12 +137,40 @@ const BlockWrapper = ({ children, className = "", id }: { children: React.ReactN
 
 const SectionHeader = ({ title, subTitle, align = "left" }: { title: string, subTitle?: string, align?: "left" | "center" }) => (
   <div className={`mb-12 ${align === "center" ? "text-center" : ""}`}>
-    <h2 className="text-white font-display font-black text-4xl mb-6 tracking-tighter uppercase leading-[0.9]">
+    <h2 className="text-white font-display font-black text-4xl mb-6 tracking-tighter uppercase leading-[1.1]">
       {title}
     </h2>
     {subTitle && <p className="text-brand-zinc/60 text-base leading-relaxed max-w-[380px] mx-auto lg:mx-0 font-medium">{subTitle}</p>}
   </div>
 );
+
+const ProductCard = ({ name, price, img, desc, accentColor = "brand-emerald", cta = "Подробнее" }: any) => {
+  const isGold = accentColor === "brand-gold";
+  return (
+    <div className={`glass-card overflow-hidden group flex flex-col h-full border-white/10 ${isGold ? 'bg-brand-gold/[0.02] border-brand-gold/20' : ''}`}>
+      <div className="aspect-video overflow-hidden">
+        <img src={img} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+      </div>
+      <div className="p-8 flex flex-col flex-1">
+        <div className="flex justify-between items-start mb-4 gap-4">
+          <h4 className="text-xl font-black text-white uppercase tracking-tight leading-tight flex-1">{name}</h4>
+          <span className={`font-mono font-black text-lg whitespace-nowrap ${isGold ? 'text-brand-gold' : 'text-brand-emerald'}`}>{price}</span>
+        </div>
+        <p className="text-base text-brand-zinc/50 leading-relaxed mb-8 flex-1 font-medium">{desc}</p>
+        <button 
+          onClick={() => window.location.href = `https://t.me/monetizator_osipuk?text=${encodeURIComponent(`Интересует ${name}`)}`}
+          className={`w-full h-14 border rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${
+            isGold 
+            ? 'bg-brand-gold/10 border-brand-gold/20 text-brand-gold hover:bg-brand-gold/20' 
+            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+          }`}
+        >
+          {cta} <ExternalLink className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
   const [step, setStep] = useState(0);
@@ -179,7 +207,7 @@ const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
       <AnimatePresence mode="wait">
         {!showInsight ? (
           <motion.div key="q" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <h3 className="text-2xl font-black text-white mb-8 leading-tight tracking-tight">{current.question}</h3>
+            <h3 className="text-2xl font-black text-white mb-8 leading-[1.2] tracking-tight">{current.question}</h3>
             <div className="space-y-4">
               {current.options.map((opt, i) => (
                 <button key={i} onClick={() => handleOption(opt)} className="w-full p-6 text-left rounded-2xl bg-white/5 border border-white/10 hover:border-brand-emerald/50 hover:bg-brand-emerald/5 transition-all group active:scale-[0.98]">
@@ -198,7 +226,7 @@ const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
                 <ShieldCheck className="w-6 h-6 text-brand-emerald" />
                 <span className="text-xs font-black text-brand-emerald uppercase tracking-widest">Инсайт монетизатора</span>
               </div>
-              <p className="text-lg text-white leading-relaxed italic font-medium">"{current.insight}"</p>
+              <p className="text-lg text-white leading-[1.4] italic font-medium">"{current.insight}"</p>
             </div>
             <button onClick={nextStep} className="mt-auto w-full h-16 bg-white text-black rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl">
               ДАЛЕЕ <ChevronRight className="w-5 h-5" />
@@ -260,7 +288,6 @@ const LossCalculator = () => {
   const [retention, setRetention] = useState(0);
 
   const currentRevenue = leads * (conv / 100) * avgCheck;
-  // Multiplier for potential: 3-5x as requested by user (let's use 3.5x for impact)
   const potentialConv = conv * 3.5; 
   const potentialRetention = currentRevenue * (retention / 100) * 1.5; 
   const totalPotential = (leads * (potentialConv / 100) * avgCheck) + potentialRetention - currentRevenue;
@@ -311,7 +338,7 @@ const LossCalculator = () => {
           </div>
           <div className="relative z-10">
             <div className="text-xs font-black text-brand-gold uppercase tracking-widest mb-4">Ваш скрытый потенциал</div>
-            <div className="text-5xl font-display font-black text-brand-gold mb-3 tracking-tighter whitespace-nowrap">
+            <div className="text-5xl font-display font-black text-brand-gold mb-3 tracking-tighter whitespace-nowrap leading-none">
               +{totalPotential.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽
             </div>
             <div className="text-[11px] text-brand-zinc/50 uppercase font-bold tracking-widest">ДОПОЛНИТЕЛЬНО К ТЕКУЩЕЙ ПРИБЫЛИ</div>
@@ -323,6 +350,26 @@ const LossCalculator = () => {
         </p>
       </div>
     </BlockWrapper>
+  );
+};
+
+const ScrollRouteLine = () => {
+  const { scrollYProgress } = useScroll();
+  const pathLength = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  
+  return (
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-visible">
+      <svg className="w-full h-full" preserveAspectRatio="none">
+        <motion.path
+          d="M 230 0 V 10000"
+          stroke="rgba(239, 68, 68, 0.2)"
+          strokeWidth="2"
+          strokeDasharray="8 12"
+          fill="transparent"
+          style={{ pathLength }}
+        />
+      </svg>
+    </div>
   );
 };
 
@@ -362,12 +409,15 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-obsidian text-brand-zinc font-sans selection:bg-brand-emerald selection:text-black">
-      <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian shadow-2xl relative border-x border-white/5">
+    <div className="min-h-screen bg-brand-obsidian text-brand-zinc font-sans selection:bg-brand-emerald selection:text-black relative">
+      
+      {/* Red Route Line Background */}
+      <ScrollRouteLine />
+
+      <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian/80 shadow-2xl relative border-x border-white/5 backdrop-blur-sm">
         
         {/* Блок 1: Главный экран */}
         <BlockWrapper className="min-h-[90dvh] flex flex-col justify-center">
-          <div className="scanner-line" />
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
             
             {/* Spinning Coin Section */}
@@ -375,18 +425,18 @@ export default function App() {
 
             <div className="flex items-center gap-3 mb-8">
               <div className="w-2.5 h-2.5 rounded-full bg-brand-emerald shadow-[0_0_12px_#10b981]" />
-              <span className="font-mono text-[11px] text-brand-emerald uppercase tracking-[0.4em] font-black">Money Matrix Protocol v2.3.0</span>
+              <span className="font-mono text-[11px] text-brand-emerald uppercase tracking-[0.4em] font-black">Money Matrix Protocol v2.4.0</span>
             </div>
 
-            <h1 className="text-5xl font-display font-black leading-[0.85] mb-12 tracking-tighter text-white uppercase">
+            <h1 className="text-[2.6rem] font-display font-black leading-[1.05] mb-12 tracking-tighter text-white uppercase">
               Ваш бизнес уже <span className="text-brand-emerald">заработал</span> больше, чем вы видите на счету.
             </h1>
 
             {!quizCompleted ? (
               <div className="space-y-12">
                 <div className="space-y-6">
-                  <p className="text-white font-black text-3xl leading-tight uppercase tracking-tighter">Пора активировать скрытые ресурсы.</p>
-                  <p className="text-brand-zinc/50 text-lg leading-relaxed font-medium">
+                  <p className="text-white font-black text-2xl leading-tight uppercase tracking-tighter">Пора активировать скрытые ресурсы.</p>
+                  <p className="text-brand-zinc/50 text-lg leading-[1.4] font-medium">
                     Сергей Осипук. Монетизатор ресурсов. Помогаю находить дополнительную прибыль в базе, связях и продуктах без лишних затрат на рекламу.
                   </p>
                 </div>
@@ -413,17 +463,16 @@ export default function App() {
                   НАЙТИ МОИ ТОЧКИ РОСТА
                   <ArrowDown className="w-6 h-6 animate-bounce" />
                 </button>
-                <p className="text-[11px] text-brand-zinc/40 text-center italic uppercase font-black tracking-widest">
+                <p className="text-[11px] text-brand-zinc/40 text-center italic uppercase font-black tracking-widest leading-relaxed">
                   Бесплатный экспресс-разбор ваших ресурсов за 30 минут по методу Монетизатора
                 </p>
 
                 <div id="quiz-anchor" className="pt-24 space-y-10">
-                  {/* Photo before quiz */}
                   <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl">
                     <img src="assets/Квиз.jpg" alt="Start Quiz" className="w-full h-auto" />
                   </div>
                   
-                  <p className="text-xl text-center font-medium text-brand-zinc/70">
+                  <p className="text-xl text-center font-medium text-brand-zinc/70 leading-relaxed">
                     Ответьте на <span className="text-white font-black">5 вопросов</span> и получите <span className="text-brand-emerald font-black">персональную</span> карту из <span className="text-white font-black">3-х точек роста</span>
                   </p>
                   <Quiz onComplete={handleQuizComplete} />
@@ -432,7 +481,7 @@ export default function App() {
             ) : (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 py-10">
                 <div className="p-10 rounded-[50px] bg-brand-emerald/10 border border-brand-emerald/30 shadow-2xl">
-                  <h3 className="text-3xl font-black text-white mb-6 uppercase leading-tight tracking-tighter">Анализ завершен!</h3>
+                  <h3 className="text-3xl font-black text-white mb-6 uppercase leading-[1.1] tracking-tighter">Анализ завершен!</h3>
                   <p className="text-lg text-brand-zinc/70 leading-relaxed mb-8">
                     Ваш персональный план активации прибыли готов. 
                     На основе ваших ответов мы определили, что ваш главный «спящий» актив — <span className="text-brand-emerald font-black text-xl">{quizData[1]?.split('(')[0].trim() || 'Ваши ресурсы'}</span>.
@@ -451,7 +500,7 @@ export default function App() {
                     {isSubmitting ? 'ОТПРАВКА...' : 'ПОЛУЧИТЬ РЕЗУЛЬТАТ В TELEGRAM'}
                     <MessageCircle className="w-6 h-6" />
                   </button>
-                  <p className="text-[11px] text-brand-zinc/40 mt-8 text-center uppercase font-black tracking-widest">
+                  <p className="text-[11px] text-brand-zinc/40 mt-8 text-center uppercase font-black tracking-widest leading-relaxed">
                     + Карта из 3-х точек роста и слот на диагностику внутри
                   </p>
                 </div>
@@ -461,17 +510,17 @@ export default function App() {
         </BlockWrapper>
 
         {/* Блок 2: Лидер среды */}
-        <BlockWrapper className="bg-brand-charcoal">
+        <BlockWrapper className="bg-brand-charcoal/50">
           <SectionHeader title="Лидер среды" subTitle="Автор метода. Профессиональный нетворкер. Лидер деловой среды." />
           <div className="relative aspect-[4/5] rounded-[50px] overflow-hidden mb-12 group grayscale hover:grayscale-0 transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5">
             <div className="absolute inset-0 bg-gradient-to-t from-brand-obsidian via-transparent to-transparent z-10" />
             <img src="assets/PhotoExpert.jpg" alt="Sergey Osipuk" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
             <div className="absolute bottom-10 left-10 z-20">
               <div className="font-mono text-[11px] text-brand-emerald font-black mb-3 uppercase tracking-widest">Founder // Protocol</div>
-              <div className="text-3xl font-black text-white uppercase tracking-tighter">СЕРГЕЙ ОСИПУК</div>
+              <div className="text-3xl font-black text-white uppercase tracking-tighter leading-none">СЕРГЕЙ ОСИПУК</div>
             </div>
           </div>
-          <p className="text-brand-zinc/60 text-lg leading-relaxed mb-10 font-medium">
+          <p className="text-brand-zinc/60 text-lg leading-[1.5] mb-10 font-medium">
             Я не теоретик из YouTube. Моя экспертиза — это сплав жесткой бизнес-логики и мастерства коммуникаций:
           </p>
           <div className="space-y-6 mb-12">
@@ -485,8 +534,8 @@ export default function App() {
                   <item.i className="w-6 h-6 text-brand-emerald" />
                 </div>
                 <div>
-                  <span className="text-base font-black text-white uppercase block mb-1">{item.t}</span>
-                  <span className="text-base text-brand-zinc/60 leading-tight">{item.d}</span>
+                  <span className="text-base font-black text-white uppercase block mb-1 leading-tight">{item.t}</span>
+                  <span className="text-base text-brand-zinc/60 leading-[1.3]">{item.d}</span>
                 </div>
               </div>
             ))}
@@ -512,7 +561,7 @@ export default function App() {
                       <ChevronRight className="w-5 h-5 text-brand-zinc/30" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-display font-black text-white mb-3 tracking-tighter group-hover:text-brand-gold transition-colors uppercase">{c.header}</h3>
+                  <h3 className="text-2xl font-display font-black text-white mb-3 tracking-tighter group-hover:text-brand-gold transition-colors uppercase leading-[1.1]">{c.header}</h3>
                   <p className="text-brand-zinc/50 text-sm leading-relaxed mb-6 font-medium">{c.sub}</p>
                   <div className="text-[11px] font-black text-brand-emerald uppercase tracking-widest border-t border-white/5 pt-6 flex items-center gap-2">
                     <TrendingUp className="w-4 h-4" /> Ключевой показатель: {c.stats}
@@ -576,6 +625,28 @@ export default function App() {
           </div>
         </BlockWrapper>
 
+        {/* Блок 6: С кем мы не сработаемся (RESTORED) */}
+        <BlockWrapper className="bg-red-500/[0.02] border-y border-red-500/10">
+          <SectionHeader title="С кем мы не сработаемся" subTitle="Я ценю свое время и ваш результат. Поэтому я работаю не со всеми." />
+          <div className="space-y-6">
+            {[
+              { t: "Искатели «волшебных таблеток»", d: "Если вы ждете, что деньги посыпятся с неба без вашего участия и изменений в продукте." },
+              { t: "Любители «бесплатного»", d: "Если вы не готовы инвестировать время и ресурсы в развитие собственной системы монетизации." },
+              { t: "Закрытые к новому", d: "Если вы считаете, что «и так всё знаете», и не готовы тестировать нестандартные связки." }
+            ].map((item, i) => (
+              <div key={i} className="flex gap-6 p-8 rounded-[40px] bg-red-500/[0.03] border border-red-500/10 group">
+                <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center shrink-0 border border-red-500/20">
+                  <AlertTriangle className="w-7 h-7 text-red-500" />
+                </div>
+                <div>
+                  <h4 className="font-black text-white text-lg mb-2 uppercase tracking-tight leading-tight">{item.t}</h4>
+                  <p className="text-brand-zinc/50 text-base leading-relaxed font-medium">{item.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </BlockWrapper>
+
         {/* Блок 5: Метод 7 источников */}
         <BlockWrapper id="method">
           <SectionHeader title="Я сканирую ваш проект через 7 «линз» прибыли." subTitle="Деньги в 99% случаев не «приходят» из новой рекламы, а «просыпаются» внутри системы." />
@@ -594,7 +665,7 @@ export default function App() {
                   <item.i className="w-8 h-8 text-brand-emerald" />
                 </div>
                 <div>
-                  <h4 className="font-black text-white text-lg mb-2 uppercase tracking-tight">{i + 1}. {item.n}</h4>
+                  <h4 className="font-black text-white text-lg mb-2 uppercase tracking-tight leading-tight">{i + 1}. {item.n}</h4>
                   <p className="text-brand-zinc/50 text-base leading-relaxed font-medium">{item.d}</p>
                 </div>
               </div>
@@ -612,7 +683,7 @@ export default function App() {
         {/* Доп блок: Калькулятор */}
         <LossCalculator />
 
-        {/* Блоки 7-9: Услуги */}
+        {/* Блоки 7-9: Услуги (UNIFIED STYLE) */}
         <BlockWrapper id="services">
           <SectionHeader title="Линейка продуктов" subTitle="От точечной диагностики до системного сопровождения." />
           
@@ -626,29 +697,14 @@ export default function App() {
               </div>
               
               <div className="grid gap-6">
-                {[
-                  { name: "Диагностика (60 мин)", price: "5 000 ₽", img: "assets/Диагностика.jpg", desc: "Глубокий разбор текущих активов и поиск 3-х точек быстрого роста." },
-                  { name: "Мастермайнд-блиц", price: "от 1 990 ₽", img: "assets/Мастермайнд-блиц.jpg", desc: "Формат-разведка для тех, кто хочет познакомиться с методом в деле." }
-                ].map((s, i) => (
-                  <div key={i} className="glass-card overflow-hidden group flex flex-col h-full border-white/10">
-                    <div className="aspect-video overflow-hidden">
-                      <img src={s.img} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                    </div>
-                    <div className="p-8 flex flex-col flex-1">
-                      <div className="flex justify-between items-start mb-4">
-                        <h4 className="text-xl font-black text-white uppercase tracking-tight leading-tight">{s.name}</h4>
-                        <span className="font-mono font-black text-brand-emerald whitespace-nowrap">{s.price}</span>
-                      </div>
-                      <p className="text-base text-brand-zinc/50 leading-relaxed mb-8 flex-1 font-medium">{s.desc}</p>
-                      <button 
-                        onClick={() => window.location.href = `https://t.me/monetizator_osipuk?text=${encodeURIComponent(`Интересует ${s.name}`)}`}
-                        className="w-full h-14 bg-white/5 border border-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-3"
-                      >
-                        Подробнее <ExternalLink className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                <ProductCard 
+                  name="Диагностика (60 мин)" price="5 000 ₽" img="assets/Диагностика.jpg" 
+                  desc="Глубокий разбор текущих активов и поиск 3-х точек быстрого роста." 
+                />
+                <ProductCard 
+                  name="Мастермайнд-блиц" price="от 1 990 ₽" img="assets/Мастермайнд-блиц.jpg" 
+                  desc="Формат-разведка для тех, кто хочет познакомиться с методом в деле." 
+                />
               </div>
             </div>
 
@@ -661,29 +717,16 @@ export default function App() {
               </div>
               
               <div className="grid gap-6">
-                {[
-                  { name: "Мастермайнд (Сборный)", price: "5 000 ₽", img: "assets/Мастермайнд.jpg", desc: "Игра + коллективный разум. Генерируем 50+ идей для вашего бизнеса за встречу." },
-                  { name: "Стратегическая сессия", price: "15 000 ₽", img: "assets/Стратегическая сессия.jpg", desc: "Проектируем воронку ресурсов и партнерств на ближайшие 3 месяца." }
-                ].map((s, i) => (
-                  <div key={i} className="glass-card overflow-hidden group flex flex-col h-full border-brand-gold/20 bg-brand-gold/[0.02]">
-                    <div className="aspect-video overflow-hidden">
-                      <img src={s.img} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                    </div>
-                    <div className="p-8 flex flex-col flex-1">
-                      <div className="flex justify-between items-start mb-4">
-                        <h4 className="text-xl font-black text-white uppercase tracking-tight leading-tight">{s.name}</h4>
-                        <span className="font-mono font-black text-brand-gold whitespace-nowrap">{s.price}</span>
-                      </div>
-                      <p className="text-base text-brand-zinc/50 leading-relaxed mb-8 flex-1 font-medium">{s.desc}</p>
-                      <button 
-                        onClick={() => window.location.href = `https://t.me/monetizator_osipuk?text=${encodeURIComponent(`Интересует ${s.name}`)}`}
-                        className="w-full h-14 bg-brand-gold/10 border border-brand-gold/20 text-brand-gold rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-gold/20 transition-all flex items-center justify-center gap-3"
-                      >
-                        Подробнее <ExternalLink className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                <ProductCard 
+                  name="Мастермайнд (Сборный)" price="5 000 ₽" img="assets/Мастермайнд.jpg" 
+                  desc="Игра + коллективный разум. Генерируем 50+ идей для вашего бизнеса за встречу." 
+                  accentColor="brand-gold"
+                />
+                <ProductCard 
+                  name="Стратегическая сессия" price="15 000 ₽" img="assets/Стратегическая сессия.jpg" 
+                  desc="Проектируем воронку ресурсов и партнерств на ближайшие 3 месяца." 
+                  accentColor="brand-gold"
+                />
               </div>
             </div>
 
@@ -696,31 +739,21 @@ export default function App() {
               </div>
               
               <div className="grid gap-6">
-                {[
-                  { name: "Групповое наставничество", price: "от 20 000 ₽", img: "assets/Шаг 3.jpg", desc: "Работа в мини-группе: внедрение инструментов под моим присмотром." },
-                  { name: "Ведение стратегии", price: "от 30 000 ₽", img: "assets/Мастермайнд.jpg", desc: "Я становлюсь вашим архитектором монетизации на постоянной основе." },
-                  { name: "Индивидуальное сопровождение", price: "от 50 000 ₽", img: "assets/Стратегическая сессия.jpg", desc: "Полноценное внедрение всех инструментов до твердого результата." }
-                ].map((s, i) => (
-                  <div key={i} className="glass-card overflow-hidden group flex flex-col h-full border-white/10">
-                    <div className="aspect-video overflow-hidden">
-                      <img src={s.img} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                    </div>
-                    <div className="p-8 flex flex-col flex-1">
-                      <h4 className="text-xl font-black text-white uppercase tracking-tight mb-4 leading-tight">{s.name}</h4>
-                      <p className="text-base text-brand-zinc/50 leading-relaxed mb-8 flex-1 font-medium">{s.desc}</p>
-                      <div className="flex justify-between items-center mb-8 p-6 rounded-2xl bg-white/5 border border-white/10">
-                        <span className="text-xs font-bold text-brand-zinc/40 uppercase">Стоимость</span>
-                        <span className="font-mono font-black text-brand-emerald text-lg whitespace-nowrap">{s.price}</span>
-                      </div>
-                      <button 
-                        onClick={() => window.location.href = `https://t.me/monetizator_osipuk?text=${encodeURIComponent(`Хочу узнать про ${s.name}`)}`}
-                        className="w-full h-16 bg-brand-emerald text-brand-obsidian rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-brand-emerald/20 active:scale-95 transition-all flex items-center justify-center gap-3"
-                      >
-                        Зайти в {i === 2 ? 'сопровождение' : 'продукт'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                <ProductCard 
+                  name="Групповое наставничество" price="от 20 000 ₽" img="assets/Шаг 3.jpg" 
+                  desc="Работа в мини-группе: внедрение инструментов под моим присмотром." 
+                  cta="Зайти в продукт"
+                />
+                <ProductCard 
+                  name="Ведение стратегии" price="от 30 000 ₽" img="assets/Мастермайнд.jpg" 
+                  desc="Я становлюсь вашим архитектором монетизации на постоянной основе." 
+                  cta="Обсудить условия"
+                />
+                <ProductCard 
+                  name="Индивидуальное сопровождение" price="от 50 000 ₽" img="assets/Стратегическая сессия.jpg" 
+                  desc="Полноценное внедрение всех инструментов до твердого результата." 
+                  cta="Зайти в сопровождение"
+                />
               </div>
             </div>
           </div>
@@ -736,8 +769,9 @@ export default function App() {
             <SectionHeader title="Давайте найдем ваши деньги вместе. Бесплатно." align="center" />
             
             <div className="space-y-10 text-center mb-12">
-              <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl mb-8">
-                <img src="assets/Квиз.jpg" alt="Map" className="w-full h-auto opacity-80" />
+              <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl mb-8 relative">
+                <img src="assets/Квиз.jpg" alt="Map" className="w-full h-auto opacity-90" />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-obsidian via-transparent to-transparent" />
               </div>
               
               <p className="text-brand-zinc/60 text-lg leading-relaxed font-medium">
@@ -745,7 +779,7 @@ export default function App() {
               </p>
               
               <div className="p-8 rounded-[40px] bg-brand-emerald/10 border border-brand-emerald/20 shadow-inner">
-                <h4 className="font-black text-white text-xl mb-3 uppercase tracking-tight">Экспресс-диагностика</h4>
+                <h4 className="font-black text-white text-xl mb-3 uppercase tracking-tight leading-tight">Экспресс-диагностика</h4>
                 <p className="text-base text-brand-zinc/70 leading-relaxed font-medium italic">Мы просканируем ваш проект за 20-30 минут и подсветим точки роста бесплатно.</p>
               </div>
               
@@ -763,7 +797,7 @@ export default function App() {
         </BlockWrapper>
 
         {/* Блок 11: Контакты */}
-        <footer className="py-24 px-8 border-t border-white/5 bg-black/20">
+        <footer className="py-24 px-8 border-t border-white/5 bg-black/20 relative">
           <SpinningCoin className="mb-16" size="w-32 h-32" />
           <SectionHeader title="Перестаньте искать деньги далеко." subTitle="Давайте найдем их у вас под ногами." />
           
@@ -774,7 +808,7 @@ export default function App() {
               </div>
               <div>
                 <div className="text-[11px] text-brand-emerald font-black uppercase tracking-widest mb-1">Написать лично</div>
-                <div className="font-black text-white text-lg">@monetizator_osipuk</div>
+                <div className="font-black text-white text-lg leading-none">@monetizator_osipuk</div>
               </div>
             </a>
 
@@ -784,7 +818,7 @@ export default function App() {
               </div>
               <div>
                 <div className="text-[11px] text-brand-emerald font-black uppercase tracking-widest mb-1">Telegram Канал</div>
-                <div className="font-black text-white text-lg">Зайти в канал</div>
+                <div className="font-black text-white text-lg leading-none">Зайти в канал</div>
               </div>
             </a>
 
@@ -794,13 +828,13 @@ export default function App() {
               </div>
               <div>
                 <div className="text-[11px] text-brand-emerald font-black uppercase tracking-widest mb-1">WhatsApp</div>
-                <div className="font-black text-white text-lg">Написать в WhatsApp</div>
+                <div className="font-black text-white text-lg leading-none">Написать в WhatsApp</div>
               </div>
             </a>
           </div>
 
           <div className="pt-24 flex flex-col items-center gap-6 opacity-20">
-            <div className="font-mono text-[9px] uppercase tracking-[0.6em] text-center font-black">MONETIZATOR // PROTOCOL // 2026</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.6em] text-center font-black leading-none">MONETIZATOR // PROTOCOL // 2026</div>
           </div>
         </footer>
 
