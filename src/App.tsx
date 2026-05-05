@@ -1,3 +1,4 @@
+// V2.0.1 - Triggering fresh deploy
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, MessageCircle, Phone, ArrowRight } from 'lucide-react';
