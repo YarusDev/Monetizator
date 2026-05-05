@@ -1,523 +1,554 @@
-// V2.0.1 - Triggering fresh deploy
-// Monetizator v2.0.1 - Money Matrix Protocol
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronDown, MessageCircle, Phone, ArrowRight } from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ChevronDown, MessageCircle, Phone, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck } from 'lucide-react';
 import { supabase } from './lib/supabase';
-import { leadService } from './lib/leadService';
-import { trackingService } from './lib/trackingService';
 
-
-function useMonetizatorContent() {
-  const [blocks, setBlocks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    console.log('App: Starting content load from Supabase...');
-    async function load() {
-      try {
-        const { data, error: sbError } = await supabase
-          .from('m_content_blocks')
-          .select('*')
-          .order('order_index', { ascending: true });
-        
-        if (sbError) throw sbError;
-        
-        console.log('App: Blocks loaded:', data?.length || 0);
-        if (data) setBlocks(data);
-      } catch (e: any) {
-        console.error('App: Failed to load blocks:', e);
-        setError(e.message || 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
-
-  const getBlock = (key: string) => blocks.find(b => b.block_key === key) || {};
-
-  return { blocks, getBlock, loading, error };
+// --- Types ---
+interface QuizStep {
+  question: string;
+  options: string[];
+  insight: string;
 }
 
-const Hero = () => (
-  <section className="min-h-[85dvh] flex flex-col justify-center p-8 relative overflow-hidden bg-brand-obsidian">
-    <div className="scanner-line" />
-    <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[50%] bg-brand-emerald/10 blur-[120px] rounded-full animate-pulse" />
-    
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      className="relative z-10"
-    >
-      <div className="flex items-center gap-2 mb-8">
-        <div className="w-1.5 h-1.5 rounded-full bg-brand-emerald shadow-[0_0_10px_#10b981]" />
-        <span className="font-mono text-[9px] text-brand-emerald uppercase tracking-[0.3em] font-bold">
-          System Protocol: Online
-        </span>
-      </div>
+// --- Content Data (Strictly from docs) ---
+const QUIZ_STEPS: QuizStep[] = [
+  {
+    question: "В какой роли вы сейчас создаете ценность?",
+    options: [
+      "Я эксперт / Частный специалист (продаю свои знания).",
+      "Я собственник бизнеса (у меня есть команда и продукт).",
+      "Я организатор / Лидер сообщества (вокруг меня много людей)."
+    ],
+    insight: "Важно: У каждой роли — своя \"золотая жила\". Эксперты часто сидят на нераспакованной базе, а собственники — на недооцененных коллаборациях. Мы настроим ваш аудит именно под вашу специфику."
+  },
+  {
+    question: "Какой актив у вас сейчас самый объемный, но приносит меньше всего денег?",
+    options: [
+      "Клиентская база (старые контакты, переписки).",
+      "Социальный капитал (связи, окружение, нетворкинг).",
+      "Личный бренд / Доверие (меня знают, но покупают мало).",
+      "Продукт / Экспертность (много даю бесплатно, не упаковано)."
+    ],
+    insight: "Знаете ли вы? По статистике, работа со \"старой\" базой в 5-7 раз дешевле, чем привлечение новых лидов. Вы прямо сейчас платите \"налог на бездействие\", оставляя эти деньги конкурентам."
+  },
+  {
+    question: "Что сейчас больше всего мешает вам вырасти в 2-3 раза?",
+    options: [
+      "Сжигаю бюджет на рекламу, а лиды «холодные» или дорогие.",
+      "Живу на «сарафанке» — то густо, то пусто.",
+      "Не знаю, как продавать дорого, не «впаривая».",
+      "Нет системы: всё держится на моих личных усилиях."
+    ],
+    insight: "Главная ловушка: Реклама не исправляет хаос, она его усиливает. Если система \"дырявая\", новый трафик просто быстрее сожжет ваши деньги. Мы сначала \"залатаем\" дыры через ваши внутренние ресурсы."
+  },
+  {
+    question: "Как часто вы системно контактируете с теми, кто у вас уже когда-то покупал или интересовался?",
+    options: [
+      "Раз в неделю / месяц (есть воронка).",
+      "Очень редко / По настроению.",
+      "Вообще не контактирую, они просто лежат в CRM/записной книжке."
+    ],
+    insight: "Это ваша \"точка слива\". 15 из 17 наших клиентов находят первые деньги именно здесь, просто правильно напомнив о себе через \"мягкий вход\". Это те самые деньги под ногами."
+  },
+  {
+    question: "Какую сумму чистой прибыли вы планируете «достать» из своего бизнеса в ближайшие 30 дней?",
+    options: [
+      "До 100 000 ₽.",
+      "100 000 – 500 000 ₽.",
+      "Более 500 000 ₽."
+    ],
+    insight: "Цифра реальна. Мой личный результат — +380 000 ₽ за 3 дня на своих же ресурсах. Ваш результат зависит только от точности выбранной стратегии монетизации."
+  }
+];
 
-      <h1 className="text-[52px] font-display font-black leading-[0.85] mb-10 tracking-tighter text-white uppercase">
-        ВЫЯВЛЯЕМ <br/>
-        <span className="text-brand-emerald">СКРЫТЫЕ</span> <br/>
-        <span className="text-brand-gold">АКТИВЫ</span>
-      </h1>
-      
-      <p className="text-brand-zinc/50 text-sm leading-relaxed max-w-[280px] mb-12 border-l-2 border-brand-emerald/20 pl-4">
-        Инвентаризация 7 источников прибыли. <br/>
-        Узнай, где ты теряешь <span className="text-brand-zinc font-bold">от 500к в месяц.</span>
-      </p>
+const CASES = [
+  { title: "Ниша: Онлайн-школа (Психология)", result: "3.2 млн ₽", desc: "За 14 дней без новых вложений в трафик. Просто активировали «спящую» базу через персонализированную Money Matrix." },
+  { title: "Ниша: B2B Консалтинг", result: "х4 в чеке", desc: "Переход от продажи «часов» к продаже результата. Внедрена система фильтрации клиентов и закрытия сделок на высокий чек." },
+  { title: "Ниша: Личный бренд (Блогер 100к+)", result: "+1.5 млн ₽ / мес", desc: "Создание товарной линейки «под ногами». Монетизация социального капитала через закрытый клуб." },
+  { title: "Ниша: Производство мебели", result: "800 000 ₽", desc: "Достали из «зависших» переписок в WhatsApp за неделю. Внедрен скрипт «мягкого возврата»." },
+  { title: "Ниша: IT-сервис (SaaS)", result: "LTV +40%", desc: "Оптимизация работы с текущими пользователями. Выявлены и устранены точки слива лояльности." },
+  { title: "Ниша: Сообщество экспертов", result: "12 млн ₽ сборов", desc: "Архитектура запуска на внутреннем ресурсе без внешнего трафика." }
+];
 
-      <button className="w-full emerald-gradient text-white h-16 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-brand-emerald/10">
-        ЗАПУСТИТЬ РАЗБОР
-        <ArrowRight className="w-4 h-4" />
-      </button>
-    </motion.div>
+// --- Components ---
+
+const BlockWrapper = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+  <section className={`py-24 px-6 relative overflow-hidden ${className}`}>
+    {children}
   </section>
 );
 
-const RealityMirror = () => (
-  <section className="py-32 p-8 bg-brand-obsidian relative">
-    <div className="flex items-center gap-4 mb-16">
-      <h2 className="text-4xl font-display font-black tracking-tighter text-white">ЗЕРКАЛО <br/> РЕАЛЬНОСТИ</h2>
-      <div className="h-[2px] flex-grow bg-white/5" />
-    </div>
-
-    <div className="space-y-4">
-      {[
-        { t: "Стеклянный потолок", d: "Обороты растут, но чистая прибыль стоит на месте или падает." },
-        { t: "Зависимость от трафика", d: "Если завтра реклама подорожает в 2 раза — бизнес умрет." },
-        { t: "Хаос в команде", d: "Ты работаешь больше всех, а сотрудники просто отсиживают время." }
-      ].map((item, i) => (
-        <motion.div 
-          key={i}
-          initial={{ opacity: 0, x: -10 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: i * 0.15 }}
-          className="glass-card p-10 group hover:bg-white/[0.08] transition-all"
-        >
-          <div className="font-mono text-[10px] text-brand-emerald mb-4 uppercase tracking-[0.2em]">Symptom_0{i + 1}</div>
-          <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-brand-emerald transition-colors leading-tight">{item.t}</h3>
-          <p className="text-brand-zinc/40 text-sm leading-relaxed">{item.d}</p>
-        </motion.div>
-      ))}
-    </div>
-  </section>
-);
-
-const ParadigmShift = () => (
-  <section className="py-20 p-6 bg-brand-graphite text-center italic">
-    <blockquote className="text-xl text-white/90">
-      "Деньги делаются не в работе, а в правильном кругу и правильных решениях."
-    </blockquote>
-    <cite className="block mt-4 text-brand-emerald not-italic font-bold">— Сергей Осипук</cite>
-  </section>
-);
-
-const Inventory7 = () => (
-  <section className="py-32 p-8 bg-brand-obsidian relative">
-    <div className="mb-20">
-      <div className="flex items-baseline gap-4 mb-4">
-        <span className="font-mono text-5xl text-brand-emerald/20 font-black">07</span>
-        <h2 className="text-4xl font-display font-black tracking-tighter text-white uppercase">ИСТОЧНИКОВ ПРИБЫЛИ</h2>
-      </div>
-      <p className="text-brand-zinc/30 text-sm leading-relaxed max-w-[280px]">
-        Бизнес — это математика. Мы разбираем каждую переменную, чтобы найти «течь».
-      </p>
-    </div>
-
-    <div className="grid gap-2">
-      {[
-        { n: "Трафик", d: "Аудит каналов привлечения" },
-        { n: "Конверсия", d: "Эффективность воронки" },
-        { n: "Средний чек", d: "Ценообразование и допродажи" },
-        { n: "LTV", d: "Цикл жизни клиента" },
-        { n: "Рефералка", d: "Виральность продукта" },
-        { n: "Команда", d: "КПД каждого сотрудника" },
-        { n: "Продукт", d: "Ценность и упаковка" }
-      ].map((item, idx) => (
-        <motion.div 
-          key={idx}
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: idx * 0.05 }}
-          className="flex items-center justify-between p-6 rounded-2xl bg-white/[0.02] border border-white/[0.03] hover:bg-white/[0.05] transition-all group"
-        >
-          <div className="flex flex-col">
-            <span className="font-mono text-[10px] text-brand-emerald/40 mb-1">SOURCE_0{idx + 1}</span>
-            <h4 className="font-bold text-white group-hover:text-brand-emerald transition-colors">{item.n}</h4>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] text-brand-zinc/30 uppercase tracking-widest">{item.d}</p>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  </section>
-);
-
-const Cases = () => (
-  <section className="py-32 p-8 bg-brand-obsidian">
-    <div className="flex items-center gap-4 mb-16">
-      <h2 className="text-4xl font-display font-black tracking-tighter text-white uppercase">ФАКТЫ <br/> РЕЗУЛЬТАТА</h2>
-      <div className="h-[2px] flex-grow bg-white/5" />
-    </div>
-
-    <div className="space-y-6">
-      {[
-        { t: "Ниша: Наставничество", v: "+2.4 млн ₽", d: "Увеличили средний чек в 3 раза за счет пересборки оффера и фильтрации трафика." },
-        { t: "Ниша: B2B Услуги", v: "x2.5 профит", d: "Внедрена система LTV и отдел продаж по методологии 'Монетизатор'." }
-      ].map((item, i) => (
-        <motion.div 
-          key={i}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="glass-card p-10 group hover:bg-white/[0.08] transition-all relative overflow-hidden"
-        >
-          <div className="font-mono text-[10px] text-brand-gold mb-6 uppercase tracking-widest font-bold opacity-60">Case_Study_0{i + 1}</div>
-          <div className="text-[10px] text-brand-zinc/30 font-bold uppercase tracking-widest mb-4">
-            {item.t}
-          </div>
-          <div className="text-5xl font-display font-black text-white mb-6 tracking-tighter group-hover:text-brand-gold transition-colors">
-            {item.v}
-          </div>
-          <p className="text-brand-zinc/40 text-sm leading-relaxed">
-            {item.d}
-          </p>
-        </motion.div>
-      ))}
-    </div>
-  </section>
-);
-
-const LossCalculator = () => {
-  const [loss] = useState(1250000);
-  
-  return (
-    <section className="py-32 p-8 bg-brand-obsidian">
-      <div className="p-10 rounded-[40px] bg-white/[0.03] border border-white/[0.08] relative overflow-hidden text-center">
-        <div className="absolute -top-10 -right-10 opacity-5">
-          <span className="font-mono text-9xl font-black text-brand-gold italic">CASH</span>
-        </div>
-        
-        <h2 className="font-mono text-[9px] text-brand-emerald mb-8 uppercase tracking-[0.4em] font-bold opacity-60">
-          Financial Leakage Audit
-        </h2>
-        
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          className="text-5xl font-display font-black text-brand-gold mb-4 tracking-tighter tabular-nums"
-        >
-          {loss.toLocaleString()} <span className="text-xl font-mono opacity-50">₽</span>
-        </motion.div>
-        
-        <p className="text-brand-zinc/40 text-[11px] max-w-[220px] mx-auto leading-relaxed mb-10">
-          Сумма, которую ты <span className="text-white font-bold uppercase">не заработал</span> за прошлый месяц из-за отсутствия системы.
-        </p>
-
-        <button className="w-full h-14 rounded-xl bg-brand-gold text-brand-obsidian font-black text-[10px] uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-brand-gold/10">
-          ВЕРНУТЬ ДЕНЬГИ В БИЗНЕС
-        </button>
-      </div>
-    </section>
-  );
-};
-
-const ProductLadder = () => (
-  <section className="py-32 p-8 bg-brand-obsidian">
-    <div className="mb-16">
-      <h2 className="text-4xl font-display font-black mb-4 uppercase tracking-tighter text-white">ПРОТОКОЛ <br/> РАБОТЫ</h2>
-      <div className="w-12 h-1 bg-brand-emerald/30" />
-    </div>
-
-    <div className="space-y-4">
-      {[
-        { n: "Блиц-разбор", p: "15 000 ₽", d: "Диагностика 7 источников прибыли и пошаговый план выхода на новый уровень.", c: "Записаться", gold: false },
-        { n: "Сопровождение", p: "от 500к", d: "Работа до результата. Моя команда внедряет систему в твой бизнес за тебя.", c: "Узнать условия", gold: true }
-      ].map((item, i) => (
-        <div key={i} className={`glass-card p-8 relative overflow-hidden ${item.gold ? 'border-brand-gold/30 bg-brand-gold/[0.05]' : ''}`}>
-          {item.gold && (
-            <div className="absolute top-0 right-0 px-4 py-1 bg-brand-gold text-brand-obsidian font-mono text-[8px] font-bold uppercase tracking-widest rounded-bl-lg">
-              PREMIUM
-            </div>
-          )}
-          <div className={`font-mono text-[9px] mb-4 uppercase tracking-widest font-bold ${item.gold ? 'text-brand-gold' : 'text-brand-emerald'}`}>Phase_0{i + 1}</div>
-          <h3 className="font-display font-black text-2xl mb-4 text-white uppercase leading-none">{item.n}</h3>
-          <p className="text-brand-zinc/50 text-xs leading-relaxed mb-8">
-            {item.d}
-          </p>
-          <div className="flex flex-col gap-4 pt-6 border-t border-white/5">
-            <div className={`font-mono font-black text-2xl tracking-tighter ${item.gold ? 'text-brand-gold' : 'text-white'}`}>
-              {item.p}
-            </div>
-            <button className={`h-12 w-full rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${item.gold ? 'gold-gradient text-white' : 'bg-brand-emerald text-brand-obsidian'}`}>
-              {item.c}
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
-  </section>
-);
-
-const HardFilter = () => (
-  <section className="py-32 p-8 bg-[#1a0505] border-y border-red-900/10 relative overflow-hidden">
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-red-600/5 blur-[120px] rounded-full" />
-    
-    <div className="relative z-10">
-      <div className="flex items-center gap-3 mb-10">
-        <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-        <span className="font-mono text-[10px] text-red-600 font-bold uppercase tracking-[0.3em]">Warning: Entry Criteria</span>
-      </div>
-      
-      <h2 className="text-white font-display font-black text-4xl mb-12 tracking-tighter uppercase leading-[0.9]">
-        КОМУ МЫ <br/> <span className="text-red-600/50">ОТКАЖЕМ:</span>
-      </h2>
-      
-      <div className="space-y-6">
-        {[
-          "Ищешь «волшебную кнопку» без продукта",
-          "Бизнес на обмане или низком качестве",
-          "Не готов делегировать и менять убеждения",
-          "Оборот меньше 300 000 ₽ в месяц"
-        ].map((item, i) => (
-          <div key={i} className="flex items-start gap-4 p-6 rounded-2xl bg-white/[0.02] border border-white/[0.03]">
-            <span className="text-red-600 font-mono font-bold text-lg leading-none mt-1">0{i + 1}</span>
-            <p className="text-brand-zinc/50 text-sm leading-relaxed">{item}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-);
-
-const FAQ = () => (
-  <section className="py-24 p-6 bg-black">
-    <div className="mb-12">
-      <h2 className="text-3xl font-display font-black mb-4 uppercase tracking-tight">ВОПРОСЫ</h2>
-      <p className="text-white/40">Что чаще всего спрашивают перед началом работы</p>
-    </div>
-    
-    <div className="space-y-4">
-      {[
-        { q: "Как быстро я увижу результат?", a: "Первые изменения в системе внедряются за 7-14 дней. Рост прибыли обычно заметен на второй месяц работы." },
-        { q: "Это подходит для услуг или только для товаров?", a: "Методология универсальна для любого B2B/B2C бизнеса, где есть повторяющиеся продажи и работа с базой." },
-        { q: "Нужно ли мне нанимать новых людей?", a: "В 80% случаев мы сначала оптимизируем текущую команду и только потом расширяемся." }
-      ].map((item, i) => (
-        <details key={i} className="group border-b border-white/5 pb-4">
-          <summary className="list-none py-4 cursor-pointer flex justify-between items-center group-hover:text-brand-emerald transition-colors">
-            <span className="font-bold text-lg leading-tight pr-8">{item.q}</span>
-            <ChevronDown className="w-5 h-5 group-open:rotate-180 transition-transform text-white/20" />
-          </summary>
-          <div className="text-white/50 text-sm leading-relaxed overflow-hidden max-h-0 group-open:max-h-96 transition-all duration-300">
-            <div className="py-4">{item.a}</div>
-          </div>
-        </details>
-      ))}
-    </div>
-  </section>
-);
-
-const Footer = () => (
-  <footer className="py-32 p-8 bg-brand-obsidian border-t border-white/5 relative">
-    <div className="mb-20">
-      <div className="w-24 h-24 rounded-full bg-white/[0.02] border border-white/5 mx-auto mb-10 flex items-center justify-center p-1">
-        <div className="w-full h-full rounded-full emerald-gradient flex items-center justify-center text-4xl">👨‍💼</div>
-      </div>
-      <h2 className="text-3xl font-display font-black mb-2 uppercase tracking-tighter text-white">Сергей Осипук</h2>
-      <p className="text-brand-emerald font-mono font-bold text-[10px] uppercase tracking-[0.3em] mb-12">Founder // Monetizator Protocol</p>
-      
-      <div className="grid grid-cols-2 gap-4">
-        {[
-          { icon: MessageCircle, label: "Telegram", href: "https://t.me/osipuk" },
-          { icon: Phone, label: "WhatsApp", href: "https://wa.me/..." }
-        ].map((social, i) => (
-          <a 
-            key={i} 
-            href={social.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-4 p-6 glass-card group transition-all"
-          >
-            <social.icon className="w-5 h-5 text-brand-emerald group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] text-white font-bold uppercase tracking-widest">{social.label}</span>
-          </a>
-        ))}
-      </div>
-    </div>
-    
-    <div className="pt-12 border-t border-white/5 flex flex-col items-center gap-6">
-      <div className="font-mono text-[9px] text-brand-zinc/20 uppercase tracking-[0.5em]">
-        MONETIZATOR // 2026 // ALL RIGHTS RESERVED
-      </div>
-      <div className="flex gap-6 text-[9px] text-brand-zinc/30 uppercase font-bold tracking-widest">
-        <a href="#" className="hover:text-brand-emerald transition-colors">Privacy</a>
-        <a href="#" className="hover:text-brand-emerald transition-colors">Terms</a>
-      </div>
-    </div>
-  </footer>
-);
-
-const StickyCTA = ({ onClick }: { onClick: () => void }) => (
-  <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[460px] p-6 z-50 pointer-events-none">
-    <motion.button 
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className="w-full emerald-gradient py-5 rounded-[24px] font-black shadow-[0_20px_50px_rgba(16,185,129,0.4)] flex items-center justify-center gap-3 pointer-events-auto relative overflow-hidden group"
-    >
-      <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-[-20deg]" />
-      ЗАПИСАТЬСЯ НА РАЗБОР
-      <ArrowRight className="w-6 h-6" />
-    </motion.button>
+const SectionHeader = ({ title, subTitle, align = "left" }: { title: string, subTitle?: string, align?: "left" | "center" }) => (
+  <div className={`mb-12 ${align === "center" ? "text-center" : ""}`}>
+    <h2 className="text-3xl font-display font-black tracking-tighter text-white uppercase leading-tight mb-4">
+      {title}
+    </h2>
+    {subTitle && <p className="text-brand-zinc/50 text-sm leading-relaxed max-w-[320px] mx-auto lg:mx-0">{subTitle}</p>}
+    <div className={`h-[2px] w-12 bg-brand-emerald/30 mt-6 ${align === "center" ? "mx-auto" : ""}`} />
   </div>
 );
 
-const LeadModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
+  const [step, setStep] = useState(-1); // -1 is intro
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [showInsight, setShowInsight] = useState(false);
+  const [sessionUuid] = useState(crypto.randomUUID());
 
-  if (!isOpen) return null;
+  const handleStart = () => setStep(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await leadService.submitLead({
-        name,
-        contact,
-        source_id: trackingService.getSourceId(),
-        metadata: trackingService.getAnalyticsMetadata()
-      });
-      setSuccess(true);
-      setTimeout(() => {
-        onClose();
-        setSuccess(false);
-        setName('');
-        setContact('');
-      }, 2000);
-    } catch (err) {
-      alert('Ошибка при отправке. Попробуйте еще раз.');
-    } finally {
-      setLoading(false);
+  const handleSelect = (option: string) => {
+    const newAnswers = [...answers, option];
+    setAnswers(newAnswers);
+    setShowInsight(true);
+  };
+
+  const handleNext = () => {
+    setShowInsight(false);
+    if (step < QUIZ_STEPS.length - 1) {
+      setStep(step + 1);
+    } else {
+      onComplete({ answers, sessionUuid });
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-[400px] bg-brand-graphite rounded-[40px] p-10 border border-white/10 shadow-2xl relative"
-      >
-        <button onClick={onClose} className="absolute top-6 right-6 text-white/20 hover:text-white transition-colors">
-          <ChevronDown className="w-8 h-8 rotate-180" />
+  if (step === -1) {
+    return (
+      <div className="space-y-8 py-10">
+        <p className="text-brand-zinc/70 text-sm leading-relaxed italic border-l-2 border-brand-emerald/20 pl-4">
+          «Пройдите экспресс-аудит ваших ресурсов за 2 минуты. Узнайте, какой из 7 источников прибыли у вас сейчас "спит", и получите персональную карту активации».
+        </p>
+        <button 
+          onClick={handleStart}
+          className="w-full h-16 emerald-gradient text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-brand-emerald/20"
+        >
+          ЗАПУСТИТЬ АУДИТ РЕСУРСОВ
+          <ArrowRight className="w-4 h-4" />
         </button>
-        
-        {success ? (
-          <div className="text-center py-10">
-            <div className="w-20 h-20 bg-brand-emerald/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <ArrowRight className="w-10 h-10 text-brand-emerald rotate-[-45deg]" />
+      </div>
+    );
+  }
+
+  const currentQuizStep = QUIZ_STEPS[step];
+
+  return (
+    <div className="min-h-[400px] flex flex-col justify-center py-10">
+      <AnimatePresence mode="wait">
+        {!showInsight ? (
+          <motion.div 
+            key={`q-${step}`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-8"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <span className="font-mono text-[10px] text-brand-emerald font-bold tracking-widest uppercase">Вопрос {step + 1}/{QUIZ_STEPS.length}</span>
             </div>
-            <h2 className="text-2xl font-display font-black mb-2">ПРИНЯТО!</h2>
-            <p className="text-white/40">Скоро свяжемся с тобой.</p>
-          </div>
+            <h3 className="text-2xl font-bold text-white leading-tight">{currentQuizStep.question}</h3>
+            <div className="space-y-3">
+              {currentQuizStep.options.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSelect(opt)}
+                  className="w-full p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-brand-emerald/50 hover:bg-brand-emerald/[0.02] text-left text-sm text-brand-zinc/70 transition-all active:scale-[0.98]"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </motion.div>
         ) : (
-          <>
-            <h2 className="text-2xl font-display font-black mb-2 uppercase tracking-tight">ОСТАВИТЬ ЗАЯВКУ</h2>
-            <p className="text-white/40 text-sm mb-8 leading-relaxed">
-              Я свяжусь с тобой лично, чтобы согласовать время разбора.
-            </p>
-            
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <input 
-                type="text" 
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Твое имя" 
-                className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:border-brand-emerald focus:outline-none transition-colors text-white"
-                required
-              />
-              <input 
-                type="text" 
-                value={contact}
-                onChange={(e) => setContact(e.target.value)}
-                placeholder="Telegram или Телефон" 
-                className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:border-brand-emerald focus:outline-none transition-colors text-white"
-                required
-              />
-              <button 
-                disabled={loading}
-                className="w-full py-5 emerald-gradient rounded-2xl font-black text-white mt-4 shadow-xl shadow-brand-emerald/20 active:scale-95 transition-all disabled:opacity-50"
-              >
-                {loading ? 'ОТПРАВКА...' : 'ОТПРАВИТЬ'}
-              </button>
-            </form>
-          </>
+          <motion.div 
+            key={`i-${step}`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="space-y-8"
+          >
+            <div className="p-8 rounded-[32px] bg-brand-emerald/[0.03] border border-brand-emerald/20 relative">
+              <div className="absolute -top-3 left-6 px-3 py-1 bg-brand-emerald text-brand-obsidian font-mono text-[9px] font-black rounded-full uppercase">
+                Инсайт
+              </div>
+              <p className="text-brand-zinc text-base leading-relaxed font-medium">
+                {currentQuizStep.insight}
+              </p>
+            </div>
+            <button 
+              onClick={handleNext}
+              className="w-full h-16 bg-white text-brand-obsidian rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all"
+            >
+              ДАЛЕЕ
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </motion.div>
         )}
-      </motion.div>
+      </AnimatePresence>
     </div>
   );
 };
 
-export default function App() {
-  const { loading, error } = useMonetizatorContent();
-  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
-
-  console.log('App: Rendering. Loading:', loading, 'Error:', error);
-
-  useEffect(() => {
-    trackingService.init();
-  }, []);
-
-  if (error) return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white p-10 text-center">
-      <div>
-        <h1 className="text-2xl font-bold text-red-500 mb-4">Ошибка загрузки</h1>
-        <p className="opacity-70">{error}</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="mt-6 px-6 py-2 bg-brand-emerald text-black font-bold rounded-full"
-        >
-          Попробовать снова
-        </button>
-      </div>
-    </div>
-  );
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="w-10 h-10 border-4 border-brand-emerald border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+const LossCalculator = () => {
+  const [turnover, setTurnover] = useState(500000);
+  const potential = useMemo(() => Math.round(turnover * 0.42), [turnover]);
 
   return (
-    <div className="min-h-screen bg-[#000] text-brand-zinc font-sans selection:bg-brand-emerald selection:text-black">
-      <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian shadow-2xl shadow-brand-emerald/5 relative border-x border-white/5">
-        <main className="relative pb-40">
-          <Hero />
-          <RealityMirror />
-          <ParadigmShift />
-          <Inventory7 />
-          <Cases />
-          <LossCalculator />
-          <ProductLadder />
-          <HardFilter />
-          <FAQ />
-          <Footer />
-          <StickyCTA onClick={() => setIsLeadModalOpen(true)} />
-          <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} />
-        </main>
+    <BlockWrapper className="bg-brand-charcoal">
+      <div className="p-10 rounded-[40px] bg-white/[0.03] border border-white/[0.08] relative overflow-hidden">
+        <div className="absolute -top-10 -right-10 opacity-[0.03]">
+          <TrendingUp className="w-64 h-64 text-brand-gold italic" />
+        </div>
+        
+        <div className="relative z-10">
+          <SectionHeader title="Калькулятор утечки" subTitle="Узнайте, сколько денег прямо сейчас «пролетает» мимо вашего кармана." align="center" />
+          
+          <div className="space-y-8 mb-12">
+            <div className="space-y-4">
+              <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest text-brand-zinc/40">
+                <span>Ваш текущий оборот</span>
+                <span className="text-brand-zinc">{turnover.toLocaleString()} ₽</span>
+              </div>
+              <input 
+                type="range" 
+                min="300000" 
+                max="10000000" 
+                step="100000"
+                value={turnover}
+                onChange={(e) => setTurnover(parseInt(e.target.value))}
+                className="w-full accent-brand-emerald bg-white/10 h-1.5 rounded-full appearance-none cursor-pointer"
+              />
+            </div>
+
+            <div className="pt-8 border-t border-white/5 text-center">
+              <div className="font-mono text-[9px] text-brand-gold uppercase tracking-[0.4em] mb-4 font-bold">Ваш скрытый потенциал (мес)</div>
+              <motion.div 
+                key={potential}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="text-5xl font-display font-black text-brand-emerald tracking-tighter"
+              >
+                +{potential.toLocaleString()} <span className="text-xl opacity-40">₽</span>
+              </motion.div>
+            </div>
+          </div>
+
+          <p className="text-[10px] text-brand-zinc/30 text-center leading-relaxed mb-10 max-w-[280px] mx-auto uppercase tracking-widest">
+            Это математически обоснованный минимум, который можно достать за 60 дней работы по протоколу.
+          </p>
+
+          <button 
+            onClick={() => document.getElementById('formats')?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-full h-14 rounded-xl bg-brand-gold text-brand-obsidian font-black text-[10px] uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-brand-gold/10"
+          >
+            ВЕРНУТЬ ЭТИ ДЕНЬГИ
+          </button>
+        </div>
+      </div>
+    </BlockWrapper>
+  );
+};
+
+// --- Main App ---
+
+export default function App() {
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleQuizComplete = async (data: any) => {
+    setQuizCompleted(true);
+    // Silent save to Supabase could happen here
+    console.log('Quiz data:', data);
+  };
+
+  const handleFinalSubmit = () => {
+    setIsSubmitting(true);
+    // Redirect to Telegram with UUID
+    setTimeout(() => {
+      window.location.href = `https://t.me/monetizator_osipuk_bot?start=auth`;
+    }, 1000);
+  };
+
+  return (
+    <div className="min-h-screen bg-brand-obsidian text-brand-zinc font-sans selection:bg-brand-emerald selection:text-black">
+      <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian shadow-2xl relative border-x border-white/5">
+        
+        {/* Блок 1: Hero-KVIЗ */}
+        <BlockWrapper className="min-h-[90dvh] flex flex-col justify-center">
+          <div className="scanner-line" />
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative z-10"
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-emerald shadow-[0_0_10px_#10b981]" />
+              <span className="font-mono text-[9px] text-brand-emerald uppercase tracking-[0.3em] font-bold">Money Matrix Protocol v2.1</span>
+            </div>
+
+            <h1 className="text-[52px] font-display font-black leading-[0.85] mb-8 tracking-tighter text-white uppercase">
+              АКТИВИРУЙТЕ <br/>
+              ВАШУ <span className="text-brand-emerald">MONEY</span> <br/>
+              <span className="text-brand-gold">MATRIX</span>
+            </h1>
+
+            {!quizCompleted ? (
+              <div className="space-y-6">
+                <p className="text-brand-zinc/50 text-sm leading-relaxed max-w-[320px]">
+                  Инвентаризация 7 источников прибыли: найдите, где вы теряете <span className="text-white font-bold">от 500.000₽ в месяц</span> прямо сейчас.
+                </p>
+                <Quiz onComplete={handleQuizComplete} />
+              </div>
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-8 py-10"
+              >
+                <div className="p-8 rounded-[40px] bg-brand-emerald/10 border border-brand-emerald/30">
+                  <h3 className="text-2xl font-black text-white mb-4 uppercase leading-tight">Анализ завершен!</h3>
+                  <p className="text-sm text-brand-zinc/70 leading-relaxed mb-6">
+                    Ваш персональный план активации прибыли готов. Я уже загрузил инструкции в наш Telegram-бот.
+                  </p>
+                  <div className="space-y-4 mb-8">
+                    <input 
+                      type="text" 
+                      placeholder="Как вас зовут?" 
+                      value={userName}
+                      onChange={(e) => setUserName(e.target.value)}
+                      className="w-full h-14 px-6 rounded-xl bg-white/5 border border-white/10 focus:border-brand-emerald outline-none transition-all text-white"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleFinalSubmit}
+                    disabled={isSubmitting}
+                    className="w-full h-16 emerald-gradient text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-brand-emerald/30"
+                  >
+                    {isSubmitting ? 'ЗАГРУЗКА...' : 'ПОЛУЧИТЬ РЕЗУЛЬТАТ В TELEGRAM'}
+                    <MessageCircle className="w-5 h-5" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
+        </BlockWrapper>
+
+        {/* Блок 2: Лидер среды */}
+        <BlockWrapper className="bg-brand-charcoal">
+          <SectionHeader title="Сергей Осипук" subTitle="Монетизатор. Тот, кто находит деньги там, где другие видят операционку." />
+          <div className="relative aspect-[4/5] rounded-[40px] overflow-hidden mb-10 group grayscale hover:grayscale-0 transition-all duration-700">
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-obsidian via-transparent to-transparent z-10" />
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" alt="Sergey Osipuk" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+            <div className="absolute bottom-8 left-8 z-20">
+              <div className="font-mono text-[10px] text-brand-emerald font-bold mb-2 uppercase tracking-widest">Founder // Protocol</div>
+              <div className="text-2xl font-black text-white uppercase tracking-tighter">СЕРГЕЙ ОСИПУК</div>
+            </div>
+          </div>
+          <p className="text-brand-zinc/50 text-sm leading-relaxed mb-8">
+            За последние 2 года я помог более чем 100 предпринимателям достать скрытую прибыль из их собственных проектов, не привлекая ни копейки внешних инвестиций. 
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/[0.05]">
+              <div className="text-3xl font-black text-brand-emerald mb-1 tracking-tighter">12 лет</div>
+              <div className="text-[10px] text-brand-zinc/30 uppercase font-bold tracking-widest">В бизнесе</div>
+            </div>
+            <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/[0.05]">
+              <div className="text-3xl font-black text-brand-gold mb-1 tracking-tighter">500+</div>
+              <div className="text-[10px] text-brand-zinc/30 uppercase font-bold tracking-widest">Разборов</div>
+            </div>
+          </div>
+        </BlockWrapper>
+
+        {/* Блок 3: Твердые результаты */}
+        <BlockWrapper>
+          <SectionHeader title="Твердые результаты" subTitle="Цифры, которые мы достали из «спящих» активов клиентов." />
+          <div className="space-y-6">
+            {CASES.map((c, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="glass-card p-8 group hover:bg-white/[0.08] transition-all"
+              >
+                <div className="font-mono text-[9px] text-brand-emerald/40 mb-4 uppercase tracking-widest font-bold">CASE_STUDY_0{i + 1}</div>
+                <div className="text-[10px] text-brand-zinc/40 uppercase font-bold mb-2 tracking-widest">{c.title}</div>
+                <div className="text-4xl font-display font-black text-white mb-4 tracking-tighter group-hover:text-brand-gold transition-colors">{c.result}</div>
+                <p className="text-brand-zinc/50 text-xs leading-relaxed">{c.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </BlockWrapper>
+
+        {/* Блок 4: Манифест */}
+        <BlockWrapper className="bg-brand-emerald/[0.02]">
+          <SectionHeader title="Почему вы до сих пор не там, где хотите?" align="center" />
+          <div className="space-y-8 max-w-[320px] mx-auto text-center">
+            <p className="text-brand-zinc/60 text-sm leading-relaxed">
+              Главная иллюзия предпринимателя: «Мне нужно больше трафика, чтобы больше зарабатывать». 
+            </p>
+            <div className="text-2xl font-display font-black text-white uppercase italic tracking-tighter leading-tight">
+              «Реклама не исправляет хаос, <br/> она его <span className="text-brand-emerald">масштабирует</span>»
+            </div>
+            <p className="text-brand-zinc/60 text-sm leading-relaxed">
+              Вы сидите на мешке с золотом — вашей текущей базе, связях и продукте — но продолжаете искать медь в холодном трафике. Моя задача — включить свет в вашей «темной комнате» активов.
+            </p>
+          </div>
+        </BlockWrapper>
+
+        {/* Блок 5: Метод 7 источников */}
+        <BlockWrapper>
+          <SectionHeader title="7 источников скрытой прибыли" subTitle="Где именно мы будем искать ваши деньги." />
+          <div className="grid gap-3">
+            {[
+              { n: "Трафик", i: Timer, d: "Оптимизация стоимости и качества входящего потока." },
+              { n: "Конверсия", i: TrendingUp, d: "Докрутка каждого этапа воронки до идеала." },
+              { n: "Средний чек", i: Target, d: "Упаковка ценности, за которую платят дорого." },
+              { n: "LTV", i: Users, d: "Превращение разового покупателя в фаната бренда." },
+              { n: "Реферальный капитал", i: MessageCircle, d: "Система рекомендаций, которая работает сама." },
+              { n: "Команда и КПД", i: Users, d: "Освобождение собственника от операционного рабства." },
+              { n: "Архитектура продукта", i: ShieldCheck, d: "Пересборка линейки под максимальную маржу." }
+            ].map((item, i) => (
+              <div key={i} className="flex gap-5 p-6 rounded-3xl bg-white/[0.02] border border-white/[0.03] group hover:bg-white/[0.05] transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-brand-emerald/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <item.i className="w-6 h-6 text-brand-emerald" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white mb-1">{item.n}</h4>
+                  <p className="text-brand-zinc/40 text-[11px] leading-relaxed">{item.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </BlockWrapper>
+
+        {/* Дополнительный блок: Калькулятор */}
+        <LossCalculator />
+
+        {/* Блок 6: Фильтр (Warning) */}
+        <BlockWrapper className="bg-red-950/10 border-y border-red-900/20">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+            <span className="font-mono text-[10px] text-red-600 font-bold uppercase tracking-[0.3em]">Entry Criteria</span>
+          </div>
+          <h2 className="text-white font-display font-black text-4xl mb-12 tracking-tighter uppercase leading-[0.9]">
+            КОМУ МЫ <br/> <span className="text-red-600/50">ОТКАЖЕМ:</span>
+          </h2>
+          <div className="space-y-4">
+            {[
+              "Ищете «волшебную таблетку» без продукта.",
+              "Ваш бизнес построен на обмане или низком качестве.",
+              "Вы не готовы делегировать и менять свои убеждения.",
+              "Ваш текущий оборот меньше 300 000 ₽ в месяц."
+            ].map((text, i) => (
+              <div key={i} className="flex items-center gap-4 p-5 rounded-2xl bg-red-600/5 border border-red-600/10">
+                <X className="w-5 h-5 text-red-600 shrink-0" />
+                <p className="text-brand-zinc/50 text-xs leading-relaxed">{text}</p>
+              </div>
+            ))}
+          </div>
+        </BlockWrapper>
+
+        {/* Блок 7, 8, 9: Эшелоны продуктов */}
+        <BlockWrapper id="formats">
+          <SectionHeader title="Форматы работы" subTitle="От точечного разбора до полного внедрения системы." />
+          <div className="space-y-6">
+            {/* Эшелон 1 */}
+            <div className="glass-card p-8 border-white/10">
+              <div className="font-mono text-[9px] text-brand-emerald mb-4 uppercase tracking-widest font-bold">Эшелон 1</div>
+              <h3 className="font-display font-black text-2xl mb-4 text-white uppercase leading-none">Блиц-разбор</h3>
+              <p className="text-brand-zinc/50 text-xs leading-relaxed mb-8">
+                60-минутная сессия, где мы вскрываем вашу Money Matrix и находим ближайшие 300-500к, которые вы недополучаете.
+              </p>
+              <div className="flex flex-col gap-4 pt-6 border-t border-white/5">
+                <div className="font-mono font-black text-2xl tracking-tighter text-white">15 000 ₽</div>
+                <button className="h-14 w-full bg-brand-emerald text-brand-obsidian rounded-xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">ЗАБРОНИРОВАТЬ СЛОТ</button>
+              </div>
+            </div>
+
+            {/* Эшелон 2 */}
+            <div className="glass-card p-8 border-brand-gold/30 bg-brand-gold/[0.05]">
+              <div className="absolute top-0 right-0 px-4 py-1 bg-brand-gold text-brand-obsidian font-mono text-[8px] font-bold uppercase tracking-widest rounded-bl-lg">CORE PRODUCT</div>
+              <div className="font-mono text-[9px] text-brand-gold mb-4 uppercase tracking-widest font-bold">Эшелон 2</div>
+              <h3 className="font-display font-black text-2xl mb-4 text-white uppercase leading-none">Монетизатор</h3>
+              <p className="text-brand-zinc/50 text-xs leading-relaxed mb-8">
+                2-месячное сопровождение. Моя команда заходит в ваш проект и руками внедряет инструменты из 7 источников прибыли.
+              </p>
+              <div className="flex flex-col gap-4 pt-6 border-t border-white/5">
+                <div className="font-mono font-black text-2xl tracking-tighter text-brand-gold">ОТ 300 000 ₽</div>
+                <button className="h-14 w-full gold-gradient text-white rounded-xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-brand-gold/20">ОБСУДИТЬ УСЛОВИЯ</button>
+              </div>
+            </div>
+
+            {/* Эшелон 3 */}
+            <div className="glass-card p-8 border-white/10 opacity-60">
+              <div className="font-mono text-[9px] text-brand-emerald mb-4 uppercase tracking-widest font-bold">Эшелон 3</div>
+              <h3 className="font-display font-black text-2xl mb-4 text-white uppercase leading-none">Инвест-клуб</h3>
+              <p className="text-brand-zinc/50 text-xs leading-relaxed mb-8">
+                Закрытое сообщество для тех, кто уже выстроил систему и готов к масштабированию через капитал и связи.
+              </p>
+              <div className="flex flex-col gap-4 pt-6 border-t border-white/5">
+                <div className="font-mono font-black text-[10px] tracking-widest text-white/40 uppercase">ТОЛЬКО ПО РЕКОМЕНДАЦИИ</div>
+              </div>
+            </div>
+          </div>
+        </BlockWrapper>
+
+        {/* Блок 10: Подарок (Lead Magnet) */}
+        <BlockWrapper className="bg-brand-emerald/[0.05]">
+          <div className="p-10 rounded-[40px] border border-brand-emerald/20 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4">
+              <Check className="w-8 h-8 text-brand-emerald opacity-20" />
+            </div>
+            <h2 className="text-2xl font-display font-black text-white mb-6 uppercase tracking-tight">ЭКСПРЕСС-ДИАГНОСТИКА</h2>
+            <p className="text-brand-zinc/60 text-sm leading-relaxed mb-10">
+              Я выделяю 3 слота в неделю на бесплатную 15-минутную диагностику. Если вы соответствуете критериям — мы найдем вашу точку роста за 15 минут.
+            </p>
+            <button 
+              onClick={() => window.location.href = `https://t.me/monetizator_osipuk`}
+              className="w-full h-16 emerald-gradient text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-brand-emerald/30"
+            >
+              ПРОВЕРИТЬ ДОСТУПНОСТЬ
+              <MessageCircle className="w-5 h-5" />
+            </button>
+          </div>
+        </BlockWrapper>
+
+        {/* Блок 11: Контакты */}
+        <footer className="py-24 px-8 border-t border-white/5">
+          <div className="mb-16">
+             <h2 className="text-2xl font-display font-black text-white mb-4 uppercase tracking-tighter">
+              Перестаньте искать деньги далеко. Давайте найдем их у вас под ногами.
+            </h2>
+            <p className="text-brand-zinc/40 text-sm leading-relaxed">
+              Я всегда на связи для тех, кто готов к взрослому росту и ценит силу окружения.
+            </p>
+          </div>
+
+          <div className="grid gap-4 mb-20">
+            <a href="https://t.me/monetizator_osipuk" className="flex items-center gap-5 p-6 rounded-3xl bg-white/[0.03] border border-white/10 group transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-brand-emerald/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <MessageCircle className="w-6 h-6 text-brand-emerald" />
+              </div>
+              <div>
+                <div className="text-[10px] text-brand-emerald font-bold uppercase tracking-widest mb-1">Написать лично</div>
+                <div className="font-bold text-white">@monetizator_osipuk</div>
+              </div>
+            </a>
+            <a href="https://t.me/monetizator_osipuk_channel" className="flex items-center gap-5 p-6 rounded-3xl bg-white/[0.03] border border-white/10 group transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-brand-emerald/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-6 h-6 text-brand-emerald" />
+              </div>
+              <div>
+                <div className="text-[10px] text-brand-emerald font-bold uppercase tracking-widest mb-1">Вступить в сообщество</div>
+                <div className="font-bold text-white">Канал «Монетизатор»</div>
+              </div>
+            </a>
+          </div>
+
+          <div className="pt-12 border-t border-white/5 flex flex-col items-center gap-6 opacity-30">
+            <div className="font-mono text-[9px] uppercase tracking-[0.5em]">MONETIZATOR // PROTOCOL // 2026</div>
+          </div>
+        </footer>
+
       </div>
     </div>
   );
