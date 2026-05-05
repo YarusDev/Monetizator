@@ -488,7 +488,7 @@ const LeadModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }
 };
 
 export default function App() {
-  const { blocks, loading, error } = useMonetizatorContent();
+  const { loading, error } = useMonetizatorContent();
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
 
   console.log('App: Rendering. Loading:', loading, 'Error:', error);
