@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
   pages: write
@@ -24,7 +27,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
@@ -33,6 +36,9 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://gqtcxdxhqxwjaajnnuse.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_x3q4l_PbT2FmowroBrAFTQ_vm0jF5fg
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
