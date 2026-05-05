@@ -315,7 +315,7 @@ export default function App() {
           >
             <div className="flex items-center gap-2 mb-6">
               <div className="w-1.5 h-1.5 rounded-full bg-brand-emerald shadow-[0_0_10px_#10b981]" />
-              <span className="font-mono text-[9px] text-brand-emerald uppercase tracking-[0.3em] font-bold">Money Matrix Protocol v2.1</span>
+              <span className="font-mono text-[9px] text-brand-emerald uppercase tracking-[0.3em] font-bold">Money Matrix Protocol v2.1.1</span>
             </div>
 
             <h1 className="text-[52px] font-display font-black leading-[0.85] mb-8 tracking-tighter text-white uppercase">
