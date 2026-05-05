@@ -186,8 +186,7 @@ const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
   );
 };
 
-const LossCalculator = () => {
-  const [turnover, setTurnover] = useState(500000);
+const LossCalculator = ({ turnover, setTurnover }: { turnover: number, setTurnover: (v: number) => void }) => {
   const potential = useMemo(() => Math.round(turnover * 0.42), [turnover]);
 
   return (
@@ -247,24 +246,60 @@ const LossCalculator = () => {
 };
 
 // --- Main App ---
+import { leadService } from './lib/leadService';
 
 export default function App() {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [userName, setUserName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [quizData, setQuizData] = useState<{ answers: string[], sessionUuid: string } | null>(null);
+  const [turnover, setTurnover] = useState(500000);
 
-  const handleQuizComplete = async (data: any) => {
+  const handleQuizComplete = async (data: { answers: string[], sessionUuid: string }) => {
+    setQuizData(data);
     setQuizCompleted(true);
-    // Silent save to Supabase could happen here
-    console.log('Quiz data:', data);
+    // Предварительное сохранение без имени
+    try {
+      await leadService.submitLead({
+        name: 'Анонимный Лид',
+        contact: 'KVIZ_STARTED',
+        session_uuid: data.sessionUuid,
+        quiz_responses: data.answers,
+        metadata: { status: 'quiz_completed' }
+      });
+    } catch (e) {
+      console.warn('Silent save failed', e);
+    }
   };
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = async () => {
+    if (!userName.trim()) return;
+    
     setIsSubmitting(true);
-    // Redirect to Telegram with UUID
-    setTimeout(() => {
-      window.location.href = `https://t.me/monetizator_osipuk_bot?start=auth`;
-    }, 1000);
+    try {
+      await leadService.submitLead({
+        name: userName,
+        contact: 'TELEGRAM_PENDING',
+        session_uuid: quizData?.sessionUuid,
+        quiz_responses: quizData?.answers,
+        calculation_data: { 
+          turnover, 
+          potential: Math.round(turnover * 0.42),
+          formula: 'turnover * 0.42'
+        },
+        metadata: { source: 'monetizator_v2_site' }
+      });
+
+      // Редирект в личку к Сергею с UUID для идентификации
+      const message = encodeURIComponent(`Привет! Я прошел аудит Money Matrix. Мой ID: ${quizData?.sessionUuid}`);
+      window.location.href = `https://t.me/monetizator_osipuk?text=${message}`;
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert('Ошибка при отправке. Пожалуйста, напишите нам напрямую в Telegram.');
+      window.location.href = `https://t.me/monetizator_osipuk`;
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -306,7 +341,7 @@ export default function App() {
                 <div className="p-8 rounded-[40px] bg-brand-emerald/10 border border-brand-emerald/30">
                   <h3 className="text-2xl font-black text-white mb-4 uppercase leading-tight">Анализ завершен!</h3>
                   <p className="text-sm text-brand-zinc/70 leading-relaxed mb-6">
-                    Ваш персональный план активации прибыли готов. Я уже загрузил инструкции в наш Telegram-бот.
+                    Ваш персональный план активации прибыли готов. Подтвердите имя, чтобы получить результат.
                   </p>
                   <div className="space-y-4 mb-8">
                     <input 
@@ -319,10 +354,10 @@ export default function App() {
                   </div>
                   <button 
                     onClick={handleFinalSubmit}
-                    disabled={isSubmitting}
-                    className="w-full h-16 emerald-gradient text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-brand-emerald/30"
+                    disabled={isSubmitting || !userName.trim()}
+                    className="w-full h-16 emerald-gradient text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-brand-emerald/30 disabled:opacity-50"
                   >
-                    {isSubmitting ? 'ЗАГРУЗКА...' : 'ПОЛУЧИТЬ РЕЗУЛЬТАТ В TELEGRAM'}
+                    {isSubmitting ? 'ОТПРАВКА...' : 'ПОЛУЧИТЬ РЕЗУЛЬТАТ В TELEGRAM'}
                     <MessageCircle className="w-5 h-5" />
                   </button>
                 </div>
@@ -404,6 +439,76 @@ export default function App() {
               { n: "Средний чек", i: Target, d: "Упаковка ценности, за которую платят дорого." },
               { n: "LTV", i: Users, d: "Превращение разового покупателя в фаната бренда." },
               { n: "Реферальный капитал", i: MessageCircle, d: "Система рекомендаций, которая работает сама." },
+              { n: "Команда и КПД", i: Users, d: "Освобождение собственника от операционного равства." },
+              { n: "Архитектура продукта", i: ShieldCheck, d: "Пересборка линейки под максимальную маржу." }
+            ].map((item, i) => (
+              <div key={i} className="flex gap-5 p-6 rounded-3xl bg-white/[0.02] border border-white/[0.03] group hover:bg-white/[0.05] transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-brand-emerald/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <item.i className="w-6 h-6 text-brand-emerald" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white mb-1">{item.n}</h4>
+                  <p className="text-brand-zinc/40 text-[11px] leading-relaxed">{item.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </BlockWrapper>
+
+        {/* Дополнительный блок: Калькулятор */}
+        <LossCalculator turnover={turnover} setTurnover={setTurnover} />
+
+        {/* Блок 6: Фильтр (Warning) */}
+        {/* Блок 6: Фильтр (Warning) */}
+        <BlockWrapper className="bg-red-950/10 border-y border-red-900/20">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+            <span className="font-mono text-[10px] text-red-600 font-bold uppercase tracking-[0.3em] font-bold">Entry Criteria</span>
+          </div>
+          <h2 className="text-white font-display font-black text-4xl mb-12 tracking-tighter uppercase leading-[0.9]">
+            КОМУ МЫ <br/> <span className="text-red-600/50">ОТКАЖЕМ:</span>
+          </h2>
+          <div className="space-y-4">
+            {[
+              "Ищете «волшебную таблетку» без продукта.",
+              "Ваш бизнес построен на обмане или низком качестве.",
+              "Вы не готовы делегировать и менять свои убеждения.",
+              "Ваш текущий оборот меньше 300 000 ₽ в месяц."
+            ].map((text, i) => (
+              <div key={i} className="flex items-center gap-4 p-5 rounded-2xl bg-red-600/5 border border-red-600/10">
+                <X className="w-5 h-5 text-red-600 shrink-0" />
+                <p className="text-brand-zinc/50 text-xs leading-relaxed">{text}</p>
+              </div>
+            ))}
+          </div>
+        </BlockWrapper>
+
+        {/* Блок 4: Манифест */}
+        <BlockWrapper className="bg-brand-emerald/[0.02]">
+          <SectionHeader title="Почему вы до сих пор не там, где хотите?" align="center" />
+          <div className="space-y-8 max-w-[320px] mx-auto text-center">
+            <p className="text-brand-zinc/60 text-sm leading-relaxed">
+              Главная иллюзия предпринимателя: «Мне нужно больше трафика, чтобы больше зарабатывать». 
+            </p>
+            <div className="text-2xl font-display font-black text-white uppercase italic tracking-tighter leading-tight">
+              «Реклама не исправляет хаос, <br/> она его <span className="text-brand-emerald">масштабирует</span>»
+            </div>
+            <p className="text-brand-zinc/60 text-sm leading-relaxed">
+              Вы сидите на мешке с золотом — вашей текущей базе, связях и продукте — но продолжаете искать медь в холодном трафике. Моя задача — включить свет в вашей «темной комнате» активов.
+            </p>
+          </div>
+        </BlockWrapper>
+
+        {/* Блок 5: Метод 7 источников */}
+        <BlockWrapper>
+          <SectionHeader title="7 источников скрытой прибыли" subTitle="Где именно мы будем искать ваши деньги." />
+          <div className="grid gap-3">
+            {[
+              { n: "Трафик", i: Timer, d: "Оптимизация стоимости и качества входящего потока." },
+              { n: "Конверсия", i: TrendingUp, d: "Докрутка каждого этапа воронки до идеала." },
+              { n: "Средний чек", i: Target, d: "Упаковка ценности, за которую платят дорого." },
+              { n: "LTV", i: Users, d: "Превращение разового покупателя в фаната бренда." },
+              { n: "Реферальный капитал", i: MessageCircle, d: "Система рекомендаций, которая работает сама." },
               { n: "Команда и КПД", i: Users, d: "Освобождение собственника от операционного рабства." },
               { n: "Архитектура продукта", i: ShieldCheck, d: "Пересборка линейки под максимальную маржу." }
             ].map((item, i) => (
@@ -421,7 +526,7 @@ export default function App() {
         </BlockWrapper>
 
         {/* Дополнительный блок: Калькулятор */}
-        <LossCalculator />
+        <LossCalculator turnover={turnover} setTurnover={setTurnover} />
 
         {/* Блок 6: Фильтр (Warning) */}
         <BlockWrapper className="bg-red-950/10 border-y border-red-900/20">
