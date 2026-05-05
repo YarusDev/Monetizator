@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { 
-  MessageCircle, ArrowRight, Timer, TrendingUp, Users, 
+  MessageCircle, ArrowRight, Timer, Users, 
   ChevronRight, ArrowDown, Award, BarChart3, ExternalLink, ChevronLeft
 } from 'lucide-react';
 import { leadService } from './lib/leadService';
