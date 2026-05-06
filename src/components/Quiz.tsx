@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   ChevronRight, 
   ChevronLeft, 
-  Timer
+  Timer,
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 
 const ExpertInsightModal = ({ insight, onNext, onBack, showBack }: { insight: string; onNext: () => void; onBack: () => void; showBack: boolean }) => (
@@ -48,7 +50,7 @@ const ExpertInsightModal = ({ insight, onNext, onBack, showBack }: { insight: st
 
 export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [answers, setAnswers] = useState<string[]>([]);
   const [showInsight, setShowInsight] = useState(false);
   const [activeUsers, setActiveUsers] = useState(7);
   const [secondsRemaining, setSecondsRemaining] = useState(45);
@@ -74,49 +76,57 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
 
   const questions = [
     {
-      id: 'biz_q1',
-      title: "Ваша текущая роль?",
+      question: "В какой роли вы сейчас создаете ценность?",
       options: [
-        { text: "Эксперт / Фрилансер", value: "expert" },
-        { text: "Владелец бизнеса", value: "owner" },
-        { text: "Запускаю новый проект", value: "startup" }
+        "Я эксперт / Частный специалист",
+        "Я предприниматель",
+        "Я собственник бизнеса (команда и продукт)",
+        "Я лидер сообщества / Организатор"
       ],
-      insight: "Эксперты часто занижают чек, а владельцы бизнеса теряют до 30% прибыли на неэффективных связях. Ваш выбор определит фокус аудита."
+      insight: "Важно: У каждой роли — своя 'золотая жила'. Эксперты часто сидят на нераспакованной базе, а собственники — на недооцененных коллаборациях. Мы настроим ваш аудит именно под вашу специфику."
     },
     {
-      id: 'biz_q2',
-      title: "Главная цель на 30 дней?",
+      question: "Какой актив у вас сейчас самый объемный, но приносит меньше всего денег?",
       options: [
-        { text: "Увеличить чистую прибыль", value: "profit" },
-        { text: "Системный поток заявок", value: "leads" },
-        { text: "Выход из операционки", value: "exit_ops" }
+        "Клиентская база (старые контакты)",
+        "Социальный капитал (связи, нетворкинг)",
+        "Личный бренд / Доверие",
+        "Продукт / Экспертность"
       ],
-      insight: "Прибыль растет быстрее всего через работу с текущей базой, а не через покупку нового трафика. Это мой главный принцип."
+      insight: "Знаете ли вы? По статистике, работа со 'старой' базой в 5-7 раз дешевле, чем привлечение новых лидов. Вы прямо сейчас платите 'налог на бездействие', оставляя эти деньги конкурентам."
     },
     {
-      id: 'biz_q3',
-      title: "Как часто клиенты возвращаются?",
+      question: "Что сейчас больше всего мешает вам вырасти в 2-3 раза?",
       options: [
-        { text: "Постоянно (LTV высокий)", value: "high" },
-        { text: "Редко (Разовые продажи)", value: "low" },
-        { text: "Не знаю / Не считаю", value: "unknown" }
+        "Сжигаю бюджет на рекламу, лиды дорогие",
+        "Живу на 'сарафанке' — то густо, то пусто",
+        "Не знаю, как продавать дорого",
+        "Нет системы: всё на личных усилиях"
       ],
-      insight: "Если клиент не возвращается — вы каждый месяц начинаете бизнес с нуля. Мы найдем способ сделать их адвокатами вашего бренда."
+      insight: "Главная ловушка: Реклама не исправляет хаос, она его усиливает. Если система 'дырявая', новый трафик просто быстрее сожжет ваши деньги. Мы сначала 'залатаем' дыры через ваши внутренние ресурсы."
     },
     {
-      id: 'biz_q4',
-      title: "Ваш текущий оборот?",
+      question: "Как часто вы контактируете с базой тех, кто уже покупал?",
       options: [
-        { text: "До 300 000 ₽", value: "low" },
-        { text: "300к — 1 млн ₽", value: "mid" },
-        { text: "Свыше 1 млн ₽", value: "high" }
+        "Раз в неделю / месяц (есть воронка)",
+        "Очень редко / По настроению",
+        "Вообще не контактирую"
       ],
-      insight: "На каждом уровне свои «дыры». До миллиона — это обычно продукт, после — это уже процессы и неиспользованные партнерства."
+      insight: "Это ваша 'точка слива'. 15 из 17 наших клиентов находят первые деньги именно здесь, просто правильно напомнив о себе через 'мягкий вход'. Это те самые деньги под ногами."
+    },
+    {
+      question: "Какую сумму прибыли вы хотите «достать» в ближайшие 30 дней?",
+      options: [
+        "До 100 000 ₽",
+        "100 000 – 500 000 ₽",
+        "Более 500 000 ₽"
+      ],
+      insight: "Цифра реальна. Мой личный результат — +380 000 ₽ за 3 дня на своих же ресурсах. Ваш результат зависит только от точности выбранной стратегии монетизации."
     }
   ];
 
   const handleSelect = (val: string) => {
-    setAnswers({ ...answers, [questions[step].id]: val });
+    setAnswers([...answers, val]);
     setShowInsight(true);
   };
 
@@ -134,8 +144,10 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
     if (step > 0) setStep(step - 1);
   };
 
+  const progress = ((step + 1) / questions.length) * 100;
+
   return (
-    <div className="bg-brand-charcoal/50 border border-white/5 rounded-[40px] p-8 relative overflow-hidden">
+    <div className="bg-brand-charcoal/50 border border-white/5 rounded-[40px] p-8 relative overflow-hidden shadow-2xl backdrop-blur-md">
       <div className="absolute top-0 left-0 w-full h-1 bg-white/5" />
       
       <div className="flex justify-between items-center mb-10">
@@ -161,16 +173,16 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
           key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
           className="space-y-8"
         >
-          <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight leading-tight">{questions[step].title}</h3>
+          <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight leading-tight">{questions[step].question}</h3>
           <div className="grid gap-3">
             {questions[step].options.map((opt) => (
               <button
-                key={opt.value}
-                onClick={() => handleSelect(opt.value)}
+                key={opt}
+                onClick={() => handleSelect(opt)}
                 className="w-full p-6 rounded-2xl bg-white/5 border border-white/10 text-left text-brand-zinc hover:bg-brand-emerald/10 hover:border-brand-emerald/30 transition-all flex items-center justify-between group"
               >
-                <span className="font-bold text-sm uppercase tracking-wide group-hover:text-white transition-colors">{opt.text}</span>
-                <ChevronRight className="w-5 h-5 text-brand-zinc/20 group-hover:text-brand-emerald transition-all transform group-hover:translate-x-1" />
+                <span className="font-bold text-sm uppercase tracking-wide group-hover:text-white transition-colors">{opt}</span>
+                <ArrowRight className="w-5 h-5 text-brand-zinc/20 group-hover:text-brand-emerald transition-all transform group-hover:translate-x-1" />
               </button>
             ))}
           </div>
@@ -190,3 +202,4 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
     </div>
   );
 };
+
