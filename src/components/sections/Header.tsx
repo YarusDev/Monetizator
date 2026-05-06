@@ -1,6 +1,8 @@
-export const Header = ({ onOpenMenu }: { onOpenMenu: () => void }) => {
+import { Menu, X } from 'lucide-react';
+
+export const Header = ({ onOpenMenu, isOpen, onClose }: { onOpenMenu: () => void; isOpen?: boolean; onClose?: () => void }) => {
     return (
-        <header className="fixed top-0 left-1/2 -translate-x-1/2 z-[500] w-full max-w-[460px] px-6 py-5 bg-brand-obsidian/95 backdrop-blur-xl border-b border-x border-white/5">
+        <header className="fixed top-0 left-1/2 -translate-x-1/2 z-[1500] w-full max-w-[460px] px-6 py-5 bg-brand-obsidian/95 backdrop-blur-xl border-b border-x border-white/5">
             <div className="flex justify-between items-center max-w-[460px] mx-auto relative">
                 
                 {/* Logo Section - Left */}
@@ -14,15 +16,14 @@ export const Header = ({ onOpenMenu }: { onOpenMenu: () => void }) => {
                     <span className="font-mono text-[9px] text-brand-gold uppercase tracking-[0.4em] font-black">СЕРГЕЙ ОСИПУК</span>
                 </div>
 
-                {/* Hamburger Menu Button - Right */}
-                <button 
-                    onClick={onOpenMenu}
-                    className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-1.5 group active:scale-95 transition-all"
-                >
-                    <div className="w-5 h-0.5 bg-brand-emerald rounded-full group-hover:w-6 transition-all" />
-                    <div className="w-5 h-0.5 bg-brand-emerald rounded-full" />
-                    <div className="w-3 h-0.5 bg-brand-emerald rounded-full self-start ml-3 group-hover:w-5 transition-all" />
-                </button>
+                <div className="flex items-center">
+                    <button 
+                        onClick={isOpen ? onClose : onOpenMenu}
+                        className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-brand-emerald hover:bg-brand-emerald/10 transition-all active:scale-95"
+                    >
+                        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                    </button>
+                </div>
             </div>
         </header>
     );

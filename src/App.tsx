@@ -92,7 +92,11 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <Header onOpenMenu={() => setIsMenuOpen(true)} />
+      <Header 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+        onOpenMenu={() => setIsMenuOpen(true)} 
+      />
       <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian/80 shadow-2xl relative border-x border-white/5 backdrop-blur-sm">
         <MenuPopup isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 

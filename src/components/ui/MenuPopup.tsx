@@ -26,22 +26,8 @@ export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     exit={{ opacity: 0 }}
                     className="fixed inset-y-0 left-1/2 -translate-x-1/2 z-[1000] bg-[#050505] flex flex-col w-full max-w-[460px] border-x border-white/5"
                 >
-                    {/* Header inside Menu */}
-                    <div className="flex justify-between items-center px-6 py-5 border-b border-white/5">
-                        <div className="flex flex-col">
-                            <span className="text-xl font-display font-black text-brand-emerald uppercase tracking-tighter leading-none mb-1">МЕНЮ</span>
-                            <span className="font-mono text-[9px] text-brand-gold uppercase tracking-[0.4em] font-black">НАВИГАЦИЯ</span>
-                        </div>
-                        <button 
-                            onClick={onClose}
-                            className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group active:scale-95 transition-all"
-                        >
-                            <X className="w-6 h-6 text-brand-emerald group-hover:rotate-90 transition-transform" />
-                        </button>
-                    </div>
-
                     {/* Scrollable Content with Custom Scrollbar */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar pt-32 pb-12">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar pt-[100px] pb-12">
                         <div className="max-w-[460px] mx-auto px-6">
                             <nav className="flex flex-col gap-3">
                                 {menuItems.map((item, index) => (
