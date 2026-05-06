@@ -1,4 +1,5 @@
-export const Footer = () => {
+export const Footer = ({ block }: { block?: any }) => {
+
     return (
         <footer className="py-16 px-8 bg-black/40 border-t border-white/5 relative overflow-hidden">
             <div className="flex flex-col items-center gap-12 max-w-[460px] mx-auto">
@@ -6,24 +7,31 @@ export const Footer = () => {
                 {/* Legal Section */}
                 <div className="flex flex-col items-center gap-6 w-full opacity-30">
                     <div className="flex flex-col items-center gap-2">
-                        <div className="font-mono text-[9px] uppercase tracking-[0.5em] text-white font-black">ИП ОСИПУК С.В.</div>
-                        <div className="font-mono text-[8px] uppercase tracking-[0.2em] text-brand-zinc">ИНН: 780436856525 // ОГРНИП: 323784700143891</div>
+                        <div className="font-mono text-[9px] uppercase tracking-[0.5em] text-white font-black text-center">
+                            {block?.content?.legal_info || "ИП ОСИПУК С.В. ИНН: 780436856525 // ОГРНИП: 323784700143891"}
+                        </div>
                     </div>
 
                     <div className="flex gap-8">
-                        <a href="#" className="font-mono text-[8px] uppercase tracking-widest hover:text-brand-emerald transition-colors">Политика конфиденциальности</a>
-                        <a href="#" className="font-mono text-[8px] uppercase tracking-widest hover:text-brand-emerald transition-colors">Договор оферты</a>
+                        {(block?.content?.links || [
+                            { label: "Политика конфиденциальности", url: "#" },
+                            { label: "Договор оферты", url: "#" }
+                        ]).map((link: any, i: number) => (
+                            <a key={i} href={link.url} className="font-mono text-[8px] uppercase tracking-widest hover:text-brand-emerald transition-colors">
+                                {link.label}
+                            </a>
+                        ))}
                     </div>
 
                     <div className="font-mono text-[8px] uppercase tracking-[0.6em] text-center font-black">
-                        MONETIZATOR // 2026 © Все права защищены
+                        {block?.content?.copyright || "MONETIZATOR // 2026 © Все права защищены"}
                     </div>
                 </div>
 
                 <div className="flex flex-col items-center gap-6 w-full p-8 rounded-[30px] bg-white/[0.02] border border-white/5 mt-4">
                     <div className="flex flex-col items-center gap-3">
                         <img 
-                            src="assets/logoyarusdev.png" 
+                            src="/assets/logoyarusdev.png" 
                             alt="Yarusdev" 
                             className="h-16 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] transition-all duration-1000" 
                             style={{ animation: 'softPulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}

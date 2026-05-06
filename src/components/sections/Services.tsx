@@ -1,81 +1,85 @@
+import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import { BlockWrapper } from '../ui/BlockWrapper';
 import { SectionHeader } from '../ui/SectionHeader';
 import { ProductCard } from '../ui/ProductCard';
+import { supabase } from '../../lib/supabase';
 
-export const Services = () => {
+interface Product {
+    id: string;
+    title: string;
+    price: number;
+    currency: string;
+    description: string;
+    order_index: number;
+    is_active: boolean;
+}
+
+export const Services = ({ block }: { block?: any }) => {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const { data } = await supabase
+                .from('m_products')
+                .select('*')
+                .eq('is_active', true)
+                .order('order_index', { ascending: true });
+            
+            if (data) setProducts(data);
+            setLoading(false);
+        };
+        fetchProducts();
+    }, []);
+
+    if (loading) return (
+        <div className="py-20 flex justify-center">
+            <Loader2 className="animate-spin text-brand-emerald" />
+        </div>
+    );
+
+    // Группировка продуктов по эшелонам согласно документации
+    const steps = [
+        { label: 'Эшелон 1: Точечные решения', color: 'text-brand-emerald', items: products.slice(0, 2) },
+        { label: 'Эшелон 2: Среда и стратегии', color: 'text-brand-gold', items: products.slice(2, 4) },
+        { label: 'Эшелон 3: Ведение и рост', color: 'text-brand-emerald', items: products.slice(4) },
+    ];
+
     return (
         <BlockWrapper id="services">
-            <SectionHeader title="Линейка продуктов" subTitle="От точечной диагностики до системного сопровождения." />
+            <SectionHeader 
+                title={block?.title || "Линейка продуктов"} 
+                subTitle={block?.subtitle || "От точечной диагностики до системного сопровождения."} 
+            />
 
             <div className="space-y-16">
-                {/* Эшелон 1 */}
-                <div className="space-y-8">
-                    <div className="flex items-center gap-4">
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                        <span className="font-mono text-[11px] text-brand-emerald font-black uppercase tracking-[0.3em]">Шаг 1: Диагностика</span>
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                    </div>
+                {steps.map((step, idx) => (
+                    <div key={idx} className="space-y-8">
+                        {step.items.length > 0 && (
+                            <>
+                                <div className="flex items-center gap-4">
+                                    <div className="h-[1px] flex-1 bg-white/5" />
+                                    <span className={`font-mono text-[11px] ${step.color} font-black uppercase tracking-[0.3em]`}>{step.label}</span>
+                                    <div className="h-[1px] flex-1 bg-white/5" />
+                                </div>
 
-                    <div className="grid gap-6">
-                        <ProductCard
-                            name="Диагностика (60 мин)" price="5 000 ₽" img="assets/Диагностика.jpg"
-                            desc="Глубокий разбор текущих активов и поиск 3-х точек быстрого роста."
-                        />
-                        <ProductCard
-                            name="Мастермайнд-блиц" price="от 1 990 ₽" img="assets/Мастермайнд-блиц.jpg"
-                            desc="Формат-разведка для тех, кто хочет познакомиться с методом в деле."
-                        />
+                                <div className="grid gap-6">
+                                    {step.items.map((p) => (
+                                        <ProductCard
+                                            key={p.id}
+                                            name={p.title} 
+                                            price={`${p.price.toLocaleString()} ${p.currency === 'RUB' ? '₽' : p.currency}`}
+                                            img={p.image_url || `/assets/${p.title.split(' ')[0]}.jpg`} 
+                                            desc={p.description}
+                                            accentColor={step.color.includes('gold') ? 'brand-gold' : 'brand-emerald'}
+                                        />
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
-                </div>
-
-                {/* Эшелон 2 */}
-                <div className="space-y-8">
-                    <div className="flex items-center gap-4">
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                        <span className="font-mono text-[11px] text-brand-gold font-black uppercase tracking-[0.3em]">Шаг 2: Среда</span>
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                    </div>
-
-                    <div className="grid gap-6">
-                        <ProductCard
-                            name="Мастермайнд (Сборный)" price="5 000 ₽" img="assets/Мастермайнд.jpg"
-                            desc="Игра + коллективный разум. Генерируем 50+ идей для вашего бизнеса за встречу."
-                            accentColor="brand-gold"
-                        />
-                        <ProductCard
-                            name="Стратегическая сессия" price="15 000 ₽" img="assets/Стратегическая сессия.jpg"
-                            desc="Проектируем воронку ресурсов и партнерств на ближайшие 3 месяца."
-                            accentColor="brand-gold"
-                        />
-                    </div>
-                </div>
-
-                {/* Эшелон 3 */}
-                <div className="space-y-8">
-                    <div className="flex items-center gap-4">
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                        <span className="font-mono text-[11px] text-brand-emerald font-black uppercase tracking-[0.3em]">Шаг 3: Масштаб</span>
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                    </div>
-
-                    <div className="grid gap-6">
-                        <ProductCard
-                            name="Групповое наставничество" price="от 20 000 ₽" img="assets/Шаг 3.jpg"
-                            desc="Работа в мини-группе: внедрение инструментов под моим присмотром."
-                            cta="Зайти в продукт"
-                        />
-                        <ProductCard
-                            name="Ведение стратегии" price="от 30 000 ₽" img="assets/Мастермайнд.jpg"
-                            desc="Я становлюсь вашим архитектором монетизации на постоянной основе."
-                            cta="Обсудить условия"
-                        />
-                        <ProductCard
-                            name="Индивидуальное сопровождение" price="от 50 000 ₽" img="assets/Стратегическая сессия.jpg"
-                            desc="Полноценное внедрение всех инструментов до твердого результата."
-                            cta="Зайти в сопровождение"
-                        />
-                    </div>
-                </div>
+                ))}
             </div>
         </BlockWrapper>
     );

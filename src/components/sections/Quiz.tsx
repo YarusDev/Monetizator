@@ -6,8 +6,6 @@ import {
   Users as UsersIcon
 } from 'lucide-react';
 
-
-
 // Конфигурация вопросов
 const QUIZ_CONFIG = {
   initialQuestion: {
@@ -116,7 +114,7 @@ const QUIZ_CONFIG = {
   }
 };
 
-export const Quiz = ({ onComplete, onShowInsight }: { onComplete: (data: any) => void; onShowInsight: (insight: any) => void }) => {
+export const Quiz = ({ onComplete, onShowInsight, block }: { onComplete: (data: any) => void; onShowInsight: (insight: any) => void; block?: any }) => {
   // Load state from localStorage
   const savedState = JSON.parse(localStorage.getItem('monetizator_quiz_state') || 'null');
   
@@ -201,7 +199,14 @@ export const Quiz = ({ onComplete, onShowInsight }: { onComplete: (data: any) =>
   };
 
   return (
-    <div className="bg-brand-charcoal/50 border border-white/5 rounded-[40px] p-8 relative overflow-hidden shadow-2xl backdrop-blur-md">
+    <div className="space-y-8">
+      {block && (
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter mb-4">{block.title}</h2>
+          <p className="text-brand-zinc/50 text-base max-w-md mx-auto">{block.subtitle}</p>
+        </div>
+      )}
+      <div className="bg-brand-charcoal/50 border border-white/5 rounded-[40px] p-8 relative overflow-hidden shadow-2xl backdrop-blur-md">
       {/* Activity Widget */}
       <div className="absolute top-4 right-4 z-10">
         <motion.div 
@@ -263,6 +268,7 @@ export const Quiz = ({ onComplete, onShowInsight }: { onComplete: (data: any) =>
           </div>
         </motion.div>
       </AnimatePresence>
+      </div>
     </div>
   );
 };

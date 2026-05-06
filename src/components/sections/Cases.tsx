@@ -1,18 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, TrendingUp } from 'lucide-react';
+import { ChevronRight, TrendingUp, Loader2 } from 'lucide-react';
 import { BlockWrapper } from '../ui/BlockWrapper';
 import { SectionHeader } from '../ui/SectionHeader';
-import { CASES } from '../../constants/cases';
+import { supabase } from '../../lib/supabase';
 
-export const Cases = () => {
-    const [activeCase, setActiveCase] = useState<number | null>(null);
+interface Case {
+    id: string;
+    title: string;
+    student_name: string;
+    metrics: string;
+    header: string;
+    sub: string;
+    problem: string;
+    action: string;
+    description: string;
+    is_active: boolean;
+}
+
+export const Cases = ({ block }: { block?: any }) => {
+    const [activeCase, setActiveCase] = useState<string | null>(null);
+    const [cases, setCases] = useState<Case[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCases = async () => {
+            const { data } = await supabase
+                .from('m_cases')
+                .select('*')
+                .eq('is_active', true)
+                .order('order_index', { ascending: true });
+            
+            if (data) setCases(data);
+            setLoading(false);
+        };
+        fetchCases();
+    }, []);
+
+    if (loading) return (
+        <div className="py-20 flex justify-center">
+            <Loader2 className="animate-spin text-brand-emerald" />
+        </div>
+    );
+
+    if (cases.length === 0) return null;
 
     return (
         <BlockWrapper id="cases">
-            <SectionHeader title="Твердые результаты" subTitle="Цифры, которые мы достали из «спящих» активов клиентов." />
+            <SectionHeader 
+                title={block?.title || "Твердые результаты"} 
+                subTitle={block?.subtitle || "Цифры, которые мы достали из «спящих» активов клиентов."} 
+            />
             <div className="space-y-6">
-                {CASES.map((c) => (
+                {cases.map((c) => (
                     <motion.div key={c.id} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="glass-card overflow-hidden group border-white/10">
                         <div className="p-8 cursor-pointer" onClick={() => setActiveCase(activeCase === c.id ? null : c.id)}>
                             <div className="flex justify-between items-start mb-5">
@@ -24,7 +64,7 @@ export const Cases = () => {
                             <h3 className="text-2xl font-display font-black text-white mb-3 tracking-tighter group-hover:text-brand-gold transition-colors uppercase leading-[1.1]">{c.header}</h3>
                             <p className="text-brand-zinc/50 text-sm leading-relaxed mb-6 font-medium">{c.sub}</p>
                             <div className="text-[11px] font-black text-brand-emerald uppercase tracking-widest border-t border-white/5 pt-6 flex items-center gap-2">
-                                <TrendingUp className="w-4 h-4" /> Ключевой показатель: {c.stats}
+                                <TrendingUp className="w-4 h-4" /> Ключевой показатель: {c.metrics}
                             </div>
                         </div>
 
@@ -42,7 +82,7 @@ export const Cases = () => {
                                         </div>
                                         <div className="p-6 rounded-3xl bg-brand-emerald/5 border border-brand-emerald/10">
                                             <div className="text-[10px] font-black text-brand-emerald uppercase tracking-widest mb-2">Результат</div>
-                                            <p className="text-base text-brand-zinc/80 leading-relaxed font-bold">{c.result}</p>
+                                            <p className="text-base text-brand-zinc/80 leading-relaxed font-bold">{c.description}</p>
                                         </div>
                                     </div>
                                 </motion.div>

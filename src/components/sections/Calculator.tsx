@@ -3,7 +3,7 @@ import { BarChart3 } from 'lucide-react';
 import { BlockWrapper } from '../ui/BlockWrapper';
 import { SectionHeader } from '../ui/SectionHeader';
 
-export const Calculator = () => {
+export const Calculator = ({ block }: { block?: any }) => {
     const [leads, setLeads] = useState(100);
     const [conv, setConv] = useState(5);
     const [avgCheck, setAvgCheck] = useState(50000);
@@ -15,18 +15,21 @@ export const Calculator = () => {
     const totalPotential = (leads * (potentialConv / 100) * avgCheck) + potentialRetention - currentRevenue;
 
     return (
-        <BlockWrapper className="bg-brand-charcoal border-y border-white/5">
-            <SectionHeader title="Калькулятор упущенных денег" subTitle="Узнайте, сколько прибыли вы 'дарите' конкурентам из-за отсутствия системы." />
+        <BlockWrapper id="calculator">
+            <SectionHeader 
+                title={block?.title || "Ваши скрытые деньги"} 
+                subTitle={block?.subtitle || "Узнайте, сколько прибыли вы 'дарите' конкурентам из-за отсутствия системы."} 
+            />
 
             <div className="space-y-10">
                 {/* Sliders Grid */}
                 <div className="grid gap-8">
                     <div className="space-y-4">
                         <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-brand-zinc/40">
-                            <span>Лиды в месяц</span>
+                            <span>База клиентов (чел)</span>
                             <span className="text-white">{leads}</span>
                         </div>
-                        <input type="range" min="10" max="2000" step="10" value={leads} onChange={(e) => setLeads(Number(e.target.value))} className="w-full h-2 bg-white/5 rounded-lg appearance-none cursor-pointer accent-brand-emerald" />
+                        <input type="range" min="10" max="10000" step="50" value={leads} onChange={(e) => setLeads(Number(e.target.value))} className="w-full h-2 bg-white/5 rounded-lg appearance-none cursor-pointer accent-brand-emerald" />
                     </div>
 
                     <div className="space-y-4">
@@ -59,7 +62,7 @@ export const Calculator = () => {
                         <BarChart3 className="w-16 h-16 text-brand-gold" />
                     </div>
                     <div className="relative z-10">
-                        <div className="text-xs font-black text-brand-gold uppercase tracking-widest mb-4">Ваш скрытый потенциал</div>
+                        <div className="text-xs font-black text-brand-gold uppercase tracking-widest mb-4">Ваш скрытый потенциал в год</div>
                         <div className="text-5xl font-display font-black text-brand-gold mb-3 tracking-tighter whitespace-nowrap leading-none">
                             +{totalPotential.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽
                         </div>
