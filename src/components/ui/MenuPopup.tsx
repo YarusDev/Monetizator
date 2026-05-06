@@ -47,7 +47,7 @@ export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     </div>
 
                     {/* Scrollable Content with Custom Scrollbar */}
-                    <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto px-8 pt-24 pb-12 custom-scrollbar">
                         <nav className="flex flex-col gap-2">
                             {menuItems.map((item, index) => (
                                 <motion.button

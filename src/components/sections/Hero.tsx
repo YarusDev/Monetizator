@@ -16,12 +16,7 @@ export const Hero = ({
 }: any) => {
   return (
     <BlockWrapper className="min-h-[90dvh] flex flex-col justify-center">
-        {/* Red Route Line Background - Only for Hero/Top Area */}
-        <div className="absolute inset-0 pointer-events-none opacity-50 z-0">
-            <ScrollRouteLine />
-        </div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
-
             {/* Spinning Coin Section */}
             <SpinningCoin className="mb-10" />
 
@@ -34,7 +29,7 @@ export const Hero = ({
                     <div className="space-y-6">
                         <p className="text-white font-black text-2xl leading-tight uppercase tracking-tighter">Пора активировать скрытые ресурсы.</p>
                         <p className="text-brand-zinc/50 text-lg leading-[1.4] font-medium">
-                            Сергей Осипук. Монетизатор ресурсов. Помогаю находить дополнительную прибыль в базе, связях и продуктах без лишних затрат на рекламу.
+                            Помогаю находить дополнительную прибыль в базе, связях и продуктах без лишних затрат на рекламу.
                         </p>
                     </div>
 

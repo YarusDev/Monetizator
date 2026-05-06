@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 export const Header = ({ onOpenMenu }: { onOpenMenu: () => void }) => {
     return (
         <header className="fixed top-0 left-0 right-0 z-[150] w-full px-6 py-5 bg-brand-obsidian/90 backdrop-blur-xl border-b border-white/5">

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { leadService } from './lib/leadService';
-import { ScrollRouteLine } from './components/ui/ScrollRouteLine';
 import { Hero } from './components/sections/Hero';
 import { Expert } from './components/sections/Expert';
 import { Cases } from './components/sections/Cases';
@@ -13,6 +12,7 @@ import { Gift } from './components/sections/Gift';
 import { Footer } from './components/sections/Footer';
 import { Header } from './components/sections/Header';
 import { Contacts } from './components/sections/Contacts';
+import { MenuPopup } from './components/ui/MenuPopup';
 
 export default function App() {
   const [quizCompleted, setQuizCompleted] = useState(false);
@@ -53,10 +53,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-obsidian text-brand-zinc font-sans selection:bg-brand-emerald selection:text-black relative">
-
-      {/* Red Route Line Background */}
-      <ScrollRouteLine />
+    <div className="min-h-screen bg-brand-obsidian text-white font-sans selection:bg-brand-emerald selection:text-white">
 
       <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian/80 shadow-2xl relative border-x border-white/5 backdrop-blur-sm">
         <Header onOpenMenu={() => setIsMenuOpen(true)} />
