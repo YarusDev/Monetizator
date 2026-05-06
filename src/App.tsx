@@ -92,12 +92,12 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      <Header onOpenMenu={() => setIsMenuOpen(true)} />
       <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian/80 shadow-2xl relative border-x border-white/5 backdrop-blur-sm">
-        <Header onOpenMenu={() => setIsMenuOpen(true)} />
         <MenuPopup isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
         {/* Блок 1: Главный экран + Квиз */}
-        <div id="home">
+        <div id="home" className="pt-[100px]">
           <Hero 
             quizCompleted={quizCompleted}
             quizData={quizData}
