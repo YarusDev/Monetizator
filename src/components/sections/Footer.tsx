@@ -25,7 +25,7 @@ export const Footer = () => {
                         <img 
                             src="assets/logoyarusdev.png" 
                             alt="Yarusdev" 
-                            className="h-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] transition-all duration-1000" 
+                            className="h-16 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] transition-all duration-1000" 
                             style={{ animation: 'softPulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}
                         />
                         <style>{`
