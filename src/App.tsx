@@ -13,6 +13,7 @@ type QuizRole = 'EXPERT' | 'BUSINESS_OWNER' | 'ENTREPRENEUR' | 'COMMUNITY_LEADER
 interface Option {
   text: string;
   value: string;
+  isNeutral?: boolean;
 }
 
 interface QuizStep {
@@ -79,7 +80,8 @@ const BRANCHES: Record<string, QuizStep[]> = {
       options: [
         { text: "Более 30% (есть система)", value: "systematic" },
         { text: "Менее 10% (случайно)", value: "random" },
-        { text: "Работаем только на разовых", value: "one_off" }
+        { text: "Работаем только на разовых", value: "one_off" },
+        { text: "Не знаю / Не считаю", value: "unknown", isNeutral: true }
       ],
       insight: "Привлечение нового клиента в 7 раз дороже удержания. Если нет системы LTV (2-й источник), вы выбрасываете маржу. Мы найдем точки касания для фанатства бренда.",
       progressText: "Расчет LTV потенциала..."
@@ -218,24 +220,45 @@ const FINAL_STEP: QuizStep = {
 
 // --- Sub-components ---
 
-const ExpertInsight = ({ text, visible }: { text: string, visible: boolean }) => (
+const ExpertInsightModal = ({ text, visible, onNext, onBack, showBack }: { text: string, visible: boolean, onNext: () => void, onBack: () => void, showBack: boolean }) => (
   <AnimatePresence>
     {visible && (
       <motion.div 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        exit={{ opacity: 0, y: -10 }}
-        className="mt-8 p-6 rounded-3xl bg-brand-emerald/10 border border-brand-emerald/20 relative"
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md"
       >
-        <div className="flex gap-4 items-start mb-4">
-          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-emerald/30 shrink-0">
-            <img src="assets/PhotoExpert.jpg" alt="Сергей Осипук" className="w-full h-full object-cover" />
+        <motion.div 
+          initial={{ scale: 0.9, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          className="glass-card w-full max-w-[400px] p-8 border-brand-emerald/30 shadow-[0_0_50px_rgba(16,185,129,0.2)] relative"
+        >
+          <div className="flex flex-col items-center text-center">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-brand-emerald/30 mb-6 shadow-2xl">
+              <img src="assets/PhotoExpert.jpg" alt="Сергей Осипук" className="w-full h-full object-cover" />
+            </div>
+            <div className="text-[10px] font-black text-brand-emerald uppercase tracking-[0.3em] mb-4">Инсайт Монетизатора</div>
+            <p className="text-lg text-white leading-relaxed italic font-medium mb-8">"{text}"</p>
+            
+            <div className="w-full flex gap-3">
+              {showBack && (
+                <button 
+                  onClick={onBack}
+                  className="px-6 h-14 rounded-xl bg-white/5 border border-white/10 text-brand-zinc/50 flex items-center justify-center hover:bg-white/10 transition-all"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+              )}
+              <button 
+                onClick={onNext}
+                className="flex-1 h-14 rounded-xl bg-brand-emerald text-black font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
+              >
+                ПРОДОЛЖИТЬ <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-          <div>
-            <div className="text-[10px] font-black text-brand-emerald uppercase tracking-widest mb-1">Сергей Осипук, Монетизатор</div>
-            <p className="text-sm text-white leading-relaxed italic font-medium">"{text}"</p>
-          </div>
-        </div>
+        </motion.div>
       </motion.div>
     )}
   </AnimatePresence>
@@ -247,6 +270,30 @@ const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
   const [answers, setAnswers] = useState<Record<string, string>>(() => JSON.parse(localStorage.getItem('quiz_answers') || '{}'));
   const [showInsight, setShowInsight] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  
+  const [activeUsers, setActiveUsers] = useState(7);
+  const [secondsRemaining, setSecondsRemaining] = useState(45);
+
+  // Live Counter Logic
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveUsers(prev => {
+        const change = Math.random() > 0.5 ? 1 : -1;
+        const newVal = prev + change;
+        return newVal < 3 ? 3 : newVal > 10 ? 10 : newVal;
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Timer Logic
+  useEffect(() => {
+    if (secondsRemaining <= 10) return; // Don't go below 10 for urgency feel
+    const interval = setInterval(() => {
+      setSecondsRemaining(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [secondsRemaining]);
 
   // Sync state to localStorage
   useEffect(() => {
@@ -315,8 +362,9 @@ const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
   return (
     <div className="glass-card p-8 min-h-[520px] flex flex-col shadow-2xl border-white/10 relative">
       {/* Social Proof Widget */}
-      <div className="absolute -top-4 -right-4 bg-brand-emerald text-black text-[9px] font-black py-2 px-4 rounded-full shadow-lg animate-pulse z-20 uppercase tracking-widest">
-        Сейчас проходят аудит: 14 человек
+      <div className="absolute -top-4 -right-4 bg-brand-emerald text-black text-[9px] font-black py-2 px-4 rounded-full shadow-lg z-20 uppercase tracking-widest flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
+        Сейчас проходят аудит: {activeUsers} человек
       </div>
 
       <div className="mb-10">
@@ -326,7 +374,8 @@ const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
             <span className="text-xs text-brand-zinc/50 font-bold uppercase">{current.progressText || "Анализ..."}</span>
           </div>
           <div className="text-[10px] text-brand-zinc/40 font-black uppercase flex items-center gap-2">
-            <Timer className="w-3 h-3" /> ~45 сек до финиша
+            <Timer className={`w-3 h-3 ${secondsRemaining < 20 ? 'text-red-500 animate-pulse' : ''}`} /> 
+            ~{secondsRemaining} сек до финиша
           </div>
         </div>
         <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -365,23 +414,23 @@ const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
           </motion.div>
         </AnimatePresence>
 
-        <ExpertInsight text={typeof current.insight === 'function' ? current.insight(selectedOption || '') : current.insight} visible={showInsight} />
+        <ExpertInsightModal 
+          text={typeof current.insight === 'function' ? current.insight(selectedOption || '') : current.insight} 
+          visible={showInsight}
+          onNext={next}
+          onBack={back}
+          showBack={currentStep > 0}
+        />
       </div>
 
-      <div className="mt-10 flex gap-4">
+      <div className="mt-10 flex gap-4 opacity-20 pointer-events-none">
         {currentStep > 0 && (
-          <button onClick={back} className="px-6 h-16 rounded-2xl bg-white/5 border border-white/10 text-brand-zinc/50 flex items-center justify-center hover:bg-white/10 transition-all">
+          <button className="px-6 h-16 rounded-2xl bg-white/5 border border-white/10 text-brand-zinc/50 flex items-center justify-center transition-all">
             <ChevronLeft className="w-6 h-6" />
           </button>
         )}
         <button 
-          onClick={next} 
-          disabled={!showInsight}
-          className={`flex-1 h-16 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${
-            showInsight 
-            ? 'bg-white text-black shadow-xl active:scale-95' 
-            : 'bg-white/5 text-white/20 border border-white/5 cursor-not-allowed'
-          }`}
+          className="flex-1 h-16 rounded-2xl bg-white/5 text-white/20 border border-white/5 font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3"
         >
           {currentStep === steps.length - 1 ? 'ФИНАЛИЗИРОВАТЬ' : 'ДАЛЕЕ'} <ChevronRight className="w-5 h-5" />
         </button>
@@ -557,17 +606,131 @@ const ProductCard = ({ name, price, img, desc, accentColor = "brand-emerald", ct
 const CASES = [
   {
     id: 1, title: "Фотограф (Услуги)", header: "+55 000 ₽ за 14 дней", sub: "Как выйти из ловушки низкого чека.",
-    stats: "75к → 130к за 2 недели", problem: "База лежала 'мёртвым грузом'.", action: "Запущен продукт 'Фото-подружка'.", result: "База стала активом."
+    stats: "75к → 130к за 2 недели", problem: "Продажа основной услуги за 10 000 ₽ в лоб приносила мало заказов, а база контактов лежала «мёртвым грузом».", action: "Запущен продукт «Фото-подружка».", result: "База превратилась в актив, а доверительный контакт обеспечил поток продаж без вложений в трафик."
   },
   {
     id: 2, title: "Школа языков", header: "+30% новых студентов", sub: "Как найти деньги в расписании.",
-    stats: "Заполнение групп без трафика", problem: "Простой классов и база 'отказников'.", action: "Встроили разговорные клубы.", result: "Рост учеников за 60 дней."
+    stats: "Заполнение групп без трафика", problem: "Простой учебных классов и наличие базы потенциальных клиентов, которые интересовались, но не купили основной продукт.", action: "Встроили разговорные клубы и базовые уроки.", result: "Простаивающее время стало активом, а школа увеличила количество учеников на 30% за 60 дней."
   },
   {
     id: 3, title: "Инвест-недвижимость", header: "Новая премиум-аудитория", sub: "Система взаимных продаж.",
-    stats: "Доступ к VIP + прибыль", problem: "Дорогой трафик на холодную.", action: "Коллаборация с премиум-брендом.", result: "VIP-аудитория с высоким чеком."
+    stats: "Доступ к VIP + прибыль", problem: "Поиск новых целевых клиентов через стандартные каналы обходился дорого.", action: "Коллаборация с брендом косметики премиум-сегмента.", result: "Агент получил прибыль от продаж партнера и качественную аудиторию."
+  },
+  {
+    id: 4, title: "MLM-предприниматель", header: "+60 000 ₽ личных продаж", sub: "Рост через раскрытие экспертных ресурсов.",
+    stats: "+15 партнеров за 14 дней", problem: "Команда рассматривалась просто как «список имен», а ресурсы партнеров не использовались системно.", action: "Коллаборация с нутрициологом из числа партнеров.", result: "Рост личных продаж и команды через активацию «спящей» среды."
+  },
+  {
+    id: 5, title: "Юрист", header: "10 обращений вместо 1", sub: "Отказ от слива бюджета в Директ.",
+    stats: "80 000 ₽+ без рекламы", problem: "Расходы на рекламу 50 000 ₽ приносили максимум 1 клиента; отсутствие системы входа в услуги.", action: "Загрузили «аудитом договоров» — быстрым продуктом-шагом.", result: "Количество обращений выросло в 10 раз, обеспечив стабильный доход."
+  },
+  {
+    id: 6, title: "BBQ-оборудование", header: "Активация VIP-базы", sub: "Допродажи через бесплатный сервис.",
+    stats: "Чек от 500 000 ₽", problem: "Игнорирование базы клиентов после совершения крупной сделки.", action: "Бесплатный сервисный осмотр оборудования.", result: "Сервис стал «точкой входа» в новые продажи дорогих комплектующих."
   }
 ];
+
+const SourcesOfProfit = () => {
+  const sources = [
+    { t: "Клиентская база", d: "Превращаем ваш «архив» в актив, который приносит деньги без вложений в трафик." },
+    { t: "Повторные продажи", d: "Проектируем логичное продолжение после первой сделки." },
+    { t: "Рекомендации", d: "Учимся управлять «сарафаном» системно и экологично, а не ждать его как погоды." },
+    { t: "Добавочная ценность", d: "Делаем высокий чек обоснованным и желанным для клиента." },
+    { t: "Коллаборации", d: "Строим партнерства на взаимной выгоде без «кринжа» и спама." },
+    { t: "Скрытые услуги", d: "Упаковываем вашу экспертность, которая давалась «бонусом», в отдельный продукт." },
+    { t: "Старые клиенты", d: "Возвращаем тех, кто уже доверял вам деньги, через мягкую пользу." }
+  ];
+
+  return (
+    <BlockWrapper className="bg-brand-obsidian py-32">
+      <SectionHeader title="7 источников скрытой прибыли" subTitle="Я сканирую ваш проект через 7 «линз» прибыли. Деньги в 99% случаев не «приходят» из новой рекламы, а «просыпаются» внутри системы." align="center" />
+      <div className="grid gap-4">
+        {sources.map((s, i) => (
+          <div key={i} className="glass-card p-6 border-white/5 flex gap-5 items-start">
+            <div className="w-10 h-10 shrink-0 rounded-full bg-brand-emerald/10 flex items-center justify-center font-display font-black text-brand-emerald border border-brand-emerald/20">
+              {i + 1}
+            </div>
+            <div>
+              <h4 className="text-white font-black uppercase tracking-tight text-lg mb-1">{s.t}</h4>
+              <p className="text-brand-zinc/50 text-sm leading-relaxed font-medium">{s.d}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button 
+        onClick={() => document.getElementById('quiz-anchor')?.scrollIntoView({ behavior: 'smooth' })}
+        className="w-full h-16 border border-brand-emerald/30 text-brand-emerald rounded-2xl font-black text-[10px] uppercase tracking-widest mt-12 hover:bg-brand-emerald/10 transition-all"
+      >
+        ПРОСКАННИРОВАТЬ МОЙ БИЗНЕС
+      </button>
+    </BlockWrapper>
+  );
+};
+
+const Manifesto = () => (
+  <BlockWrapper className="bg-brand-charcoal border-y border-white/5 py-32 overflow-hidden">
+    <div className="absolute top-0 right-0 p-20 opacity-[0.03] rotate-12 scale-150 pointer-events-none">
+      <Award className="w-96 h-96" />
+    </div>
+    <div className="relative z-10">
+      <div className="font-mono text-[10px] text-brand-emerald font-black mb-6 uppercase tracking-[0.4em]">Философия Монетизатора</div>
+      <h2 className="text-4xl font-display font-black text-white uppercase tracking-tighter mb-10 leading-[1.1]">
+        Реклама не исправляет хаос — <span className="text-brand-emerald">она его усиливает.</span>
+      </h2>
+      <div className="space-y-8 text-lg text-brand-zinc/70 font-medium leading-relaxed">
+        <p>Большинство маркетологов совершают преступление против вашего кошелька: они советуют «долить трафика» в систему, которая дырява как решето.</p>
+        <ul className="space-y-4">
+          <li className="flex gap-4">
+            <span className="text-brand-emerald font-black">•</span>
+            <span>Если ваша база не разобрана — вы теряете 70% прибыли.</span>
+          </li>
+          <li className="flex gap-4">
+            <span className="text-brand-emerald font-black">•</span>
+            <span>Если вы продаете «в лоб» без входного продукта — вы переплачиваете за клиента в 5 раз.</span>
+          </li>
+          <li className="flex gap-4">
+            <span className="text-brand-emerald font-black">•</span>
+            <span>Если нетворкинг для вас — это спам визитками, вы живете в иллюзии связей.</span>
+          </li>
+        </ul>
+        <p className="text-white font-bold italic border-l-4 border-brand-emerald pl-6">
+          Сначала мы выжимаем максимум из того, что у вас уже есть, и только потом масштабируем результат.
+        </p>
+      </div>
+    </div>
+  </BlockWrapper>
+);
+
+const FilterSection = () => (
+  <BlockWrapper className="bg-brand-obsidian py-32">
+    <SectionHeader title="Честно: я работаю не со всеми" subTitle="Мое время и экспертиза — это ресурс для тех, кто готов к взрослому росту. Нам точно не по пути, если:" />
+    <div className="grid gap-4">
+      {[
+        { t: "Вы ищете «волшебную кнопку»", d: "Я не достаю деньги из пустоты и не занимаюсь магией." },
+        { t: "У вас «абсолютный ноль»", d: "Без продукта, базы и хотя бы одного реального клиента метод не поможет." },
+        { t: "Вы не готовы действовать", d: "Если нужна просто «умная стратегия» для папки на столе — не тратьте мои силы." },
+        { t: "Вы ждете «мотивации»", d: "Я даю инструменты и план. Заставлять вас работать — не моя задача." }
+      ].map((item, i) => (
+        <div key={i} className="p-8 rounded-3xl bg-white/[0.02] border border-white/5 group hover:border-red-500/30 transition-all">
+          <h4 className="text-white font-black uppercase text-lg mb-2 flex items-center gap-3">
+            <span className="text-red-500 text-2xl leading-none">×</span> {item.t}
+          </h4>
+          <p className="text-brand-zinc/50 text-base font-medium leading-relaxed">{item.d}</p>
+        </div>
+      ))}
+    </div>
+    <div className="mt-12 p-8 rounded-3xl bg-brand-emerald/5 border border-brand-emerald/20 text-center">
+      <p className="text-brand-emerald font-black uppercase tracking-widest text-[10px] mb-4">Вердикт</p>
+      <div className="text-white font-black text-xl uppercase tracking-tighter mb-8">Я работаю только с теми, кто готов превращать ресурсы в систему.</div>
+      <button 
+        onClick={() => document.getElementById('quiz-anchor')?.scrollIntoView({ behavior: 'smooth' })}
+        className="w-full h-16 bg-white text-black rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all"
+      >
+        Я В АДЕКВАТЕ, ИДЕМ ДАЛЬШЕ
+      </button>
+    </div>
+  </BlockWrapper>
+);
 
 export default function App() {
   const [quizCompleted, setQuizCompleted] = useState(() => localStorage.getItem('quiz_completed') === 'true');
@@ -580,7 +743,10 @@ export default function App() {
     setQuizData(data);
     setQuizCompleted(true);
     localStorage.setItem('quiz_completed', 'true');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to the result section anchor
+    setTimeout(() => {
+      document.getElementById('quiz-result-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleFinalSubmit = async () => {
@@ -620,16 +786,44 @@ export default function App() {
             <div className="space-y-12">
               <div className="space-y-6">
                 <p className="text-white font-black text-2xl leading-tight uppercase tracking-tighter">Пора активировать скрытые ресурсы.</p>
-                <p className="text-brand-zinc/50 text-lg leading-[1.4] font-medium">Сергей Осипук. Монетизатор. Помогаю находить прибыль в базе и связях без затрат на рекламу.</p>
+                <p className="text-brand-zinc/50 text-lg leading-[1.5] font-medium">
+                  Сергей Осипук. Монетизатор ресурсов. Помогаю экспертам и предпринимателям находить дополнительную прибыль в базе, связях и продуктах без лишних затрат на рекламу. Пока другие ищут деньги «снаружи», мы превращаем то, что у вас уже есть, в твердый результат.
+                </p>
               </div>
-              <button 
-                onClick={() => document.getElementById('quiz-anchor')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full h-20 emerald-gradient text-white rounded-2xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-4 shadow-2xl"
-              >
-                НАЙТИ МОИ ТОЧКИ РОСТА <ArrowDown className="w-6 h-6 animate-bounce" />
-              </button>
+
+              {/* Power Stats */}
+              <div className="grid gap-4 py-4">
+                {[
+                  "+380 000 ₽ за 3 дня — результат на собственных ресурсах",
+                  "15 из 17 человек находят деньги в 1-й же день работы",
+                  "15 заявок в день с 0 вложений в рекламу"
+                ].map((stat, i) => (
+                  <div key={i} className="flex gap-4 items-center group">
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand-emerald shadow-[0_0_8px_#10b981]" />
+                    <span className="text-xs text-white font-black uppercase tracking-tight opacity-70 group-hover:opacity-100 transition-opacity">{stat}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-6">
+                <button 
+                  onClick={() => document.getElementById('quiz-anchor')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="w-full h-20 emerald-gradient text-white rounded-2xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-4 shadow-2xl active:scale-95 transition-all"
+                >
+                  НАЙТИ МОИ ТОЧКИ РОСТА <ArrowDown className="w-6 h-6 animate-bounce" />
+                </button>
+                <p className="text-center italic text-brand-zinc/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                  *Бесплатный экспресс-разбор ваших ресурсов за 30 минут по методу Монетизатора
+                </p>
+              </div>
               
-              <div id="quiz-anchor" className="pt-24 space-y-10">
+              <div id="quiz-anchor" className="pt-24 space-y-10 text-center">
+                <div className="space-y-4 mb-8">
+                  <h3 className="text-white font-display font-black text-2xl uppercase tracking-tighter">Интрига Монетизации</h3>
+                  <p className="text-brand-zinc/60 text-sm font-medium leading-relaxed px-4">
+                    Ответьте на <span className="text-brand-emerald font-black">5 коротких</span> вопросов и получите <span className="text-white font-black">персональную</span> карту из <span className="text-brand-emerald font-black">3-х точек роста</span> вашего бизнеса <span className="text-white font-black">еще до созвона</span>
+                  </p>
+                </div>
                 <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl">
                   <img src="assets/Квиз.jpg" alt="Start Quiz" className="w-full h-auto" />
                 </div>
@@ -637,7 +831,7 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="py-10 space-y-8">
+            <div id="quiz-result-anchor" className="py-10 space-y-8">
               <div className="p-10 rounded-[50px] bg-brand-emerald/10 border border-brand-emerald/30 shadow-2xl">
                 <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tighter">Аудит завершен!</h3>
                 <p className="text-lg text-brand-zinc/70 leading-relaxed mb-8 font-medium">Я уже подготовил ваш персональный план активации прибыли. Подтвердите имя, чтобы забрать его в Telegram:</p>
@@ -659,7 +853,7 @@ export default function App() {
 
         {/* About Section */}
         <BlockWrapper className="bg-brand-charcoal/50">
-          <SectionHeader title="Лидер среды" subTitle="Автор метода. Профессиональный нетворкер." />
+          <SectionHeader title="Лидер среды" subTitle="Автор метода. Профессиональный нетворкер. Лидер деловой среды." />
           <div className="relative aspect-[4/5] rounded-[50px] overflow-hidden mb-12 grayscale hover:grayscale-0 transition-all duration-700 border border-white/5 shadow-2xl">
             <img src="assets/PhotoExpert.jpg" alt="Sergey Osipuk" className="w-full h-full object-cover" />
             <div className="absolute bottom-10 left-10 z-20">
@@ -667,22 +861,35 @@ export default function App() {
               <div className="text-3xl font-black text-white uppercase tracking-tighter">СЕРГЕЙ ОСИПУК</div>
             </div>
           </div>
-          <div className="space-y-6">
-            {[
-              { i: Award, t: "Дипломированный монетизатор", d: "выпускник школы Владислава Бермуды." },
-              { i: Users, t: "Профессиональный нетворкер", d: "эксперт школы Екатерины Косенко." }
-            ].map((item, i) => (
-              <div key={i} className="flex gap-6 items-start">
-                <div className="w-12 h-12 shrink-0 rounded-2xl bg-brand-emerald/10 flex items-center justify-center border border-brand-emerald/20">
-                  <item.i className="w-6 h-6 text-brand-emerald" />
+          <div className="space-y-8">
+            <p className="text-lg text-white font-medium leading-relaxed italic border-l-4 border-brand-emerald pl-6">
+              "Я не теоретик из YouTube. Моя экспертиза — это сплав жесткой бизнес-логики и мастерства коммуникаций."
+            </p>
+            <div className="space-y-6">
+              {[
+                { i: Award, t: "Дипломированный монетизатор", d: "выпускник школы нестандартного мышления Владислава Бермуды." },
+                { i: Users, t: "Профессиональный нетворкер", d: "эксперт Первой школы профессионального нетворинга Екатерины Косенко." },
+                { i: BarChart3, t: "Масштаб", d: "через мои форматы прошли 200+ предпринимателей и экспертов." }
+              ].map((item, i) => (
+                <div key={i} className="flex gap-6 items-start">
+                  <div className="w-12 h-12 shrink-0 rounded-2xl bg-brand-emerald/10 flex items-center justify-center border border-brand-emerald/20">
+                    <item.i className="w-6 h-6 text-brand-emerald" />
+                  </div>
+                  <div>
+                    <span className="text-base font-black text-white uppercase block mb-1 leading-tight">{item.t}</span>
+                    <span className="text-base text-brand-zinc/60 leading-[1.3]">{item.d}</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-base font-black text-white uppercase block mb-1 leading-tight">{item.t}</span>
-                  <span className="text-base text-brand-zinc/60 leading-[1.3]">{item.d}</span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+          <p className="mt-10 text-lg text-brand-zinc/50 leading-relaxed font-medium">Я не просто «консультирую». Я фасилитирую процессы, в которых связи превращаются в партнерства, а ресурсы — в твердую валюту.</p>
+          <button 
+            onClick={() => document.getElementById('cases')?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-full h-16 border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest mt-8 hover:bg-white/5 transition-all"
+          >
+            ПОСМОТРЕТЬ КЕЙСЫ В ЦИФРАХ
+          </button>
         </BlockWrapper>
 
         {/* Results */}
@@ -709,50 +916,108 @@ export default function App() {
           </div>
         </BlockWrapper>
 
+        <Manifesto />
+
+        <SourcesOfProfit />
+
+        <FilterSection />
+
         <LossCalculator />
 
         {/* Products */}
-        <BlockWrapper id="services">
-          <SectionHeader title="Линейка продуктов" />
-          <div className="space-y-16">
-            <div className="space-y-6">
-              <div className="font-mono text-[10px] text-brand-emerald font-black uppercase tracking-[0.4em] text-center">Шаг 1: Диагностика</div>
-              <ProductCard name="Диагностика" price="5 000 ₽" img="assets/Диагностика.jpg" desc="Разбор активов и поиск 3-х точек быстрого роста." />
+        <BlockWrapper id="services" className="bg-brand-obsidian py-32">
+          <SectionHeader title="Линейка продуктов" align="center" />
+          
+          <div className="space-y-24">
+            {/* Echelon 1 */}
+            <div className="space-y-8">
+              <div className="font-mono text-[10px] text-brand-emerald font-black uppercase tracking-[0.5em] text-center mb-10">Эшелон 1: Быстрый старт</div>
+              <div className="grid gap-8">
+                <ProductCard 
+                  name="Диагностика скрытой прибыли" price="5 000 ₽" img="assets/Диагностика.jpg" 
+                  desc="60 минут индивидуального разбора. Находим спящие активы и 2-3 шага к деньгам за 7 дней." 
+                />
+                <ProductCard 
+                  name="Монетизатор.Блиц" price="1 990 ₽" img="assets/Квиз.jpg" 
+                  desc="90 минут игры-разведки. Свежий взгляд на продуктовую логику, если проект буксует." 
+                />
+              </div>
             </div>
-            <div className="space-y-6">
-              <div className="font-mono text-[10px] text-brand-gold font-black uppercase tracking-[0.4em] text-center">Шаг 2: Среда</div>
-              <ProductCard name="Мастермайнд" price="5 000 ₽" img="assets/Мастермайнд.jpg" desc="Игра + коллективный разум. 50+ идей за встречу." accentColor="brand-gold" />
+
+            {/* Echelon 2 */}
+            <div className="space-y-8">
+              <div className="font-mono text-[10px] text-brand-gold font-black uppercase tracking-[0.5em] text-center mb-10">Эшелон 2: Среда и Прорыв</div>
+              <div className="grid gap-8">
+                <ProductCard 
+                  name="Авторский мастермайнд" price="5 000 ₽ / чел" img="assets/Мастермайнд.jpg" 
+                  desc="Интенсивный мозговой штурм с игровой механикой. 15 из 17 находят деньги прямо во время игры." 
+                  accentColor="brand-gold"
+                />
+                <ProductCard 
+                  name="Корпоративный мастермайнд" price="40 000 ₽" img="assets/Квиз.jpg" 
+                  desc="Полная отработка запроса вашей команды до 6 человек. Взрыв текущей реальности." 
+                  accentColor="brand-gold"
+                />
+                <ProductCard 
+                  name="Стратегическая сессия" price="15 000 ₽" img="assets/Шаг 3.jpg" 
+                  desc="2.5 часа глубокого погружения. Карта ресурсов и пошаговый план на 30 дней + неделя поддержки." 
+                  accentColor="brand-gold"
+                />
+              </div>
             </div>
-            <div className="space-y-6">
-              <div className="font-mono text-[10px] text-brand-emerald font-black uppercase tracking-[0.4em] text-center">Шаг 3: Масштаб</div>
-              <ProductCard name="Наставничество" price="от 20 000 ₽" img="assets/Шаг 3.jpg" desc="Внедрение инструментов под моим присмотром." />
+
+            {/* Echelon 3 */}
+            <div className="space-y-8">
+              <div className="font-mono text-[10px] text-brand-emerald font-black uppercase tracking-[0.5em] text-center mb-10">Эшелон 3: Масштаб</div>
+              <div className="grid gap-8">
+                <ProductCard 
+                  name="Индивидуальное наставничество" price="50 000 ₽ / мес" img="assets/PhotoExpert.jpg" 
+                  desc="Мое полное погружение в ваш проект как соавтора решений. До результата вместе." 
+                />
+                <ProductCard 
+                  name="Ведение стратегии" price="20 000 ₽ / мес" img="assets/Шаг 3.jpg" 
+                  desc="Контракт от 3 месяцев. Постоянный мониторинг показателей и корректировка курса." 
+                />
+                <ProductCard 
+                  name="Групповое наставничество" price="20 000 ₽ / мес" img="assets/Мастермайнд.jpg" 
+                  desc="Трекинг, динамика и регулярные разборы в кругу равных. Для тех, кому важна дисциплина." 
+                />
+              </div>
             </div>
           </div>
         </BlockWrapper>
 
         {/* Gift Section */}
-        <BlockWrapper className="bg-brand-emerald/[0.05]">
-          <div className="p-10 rounded-[50px] border border-brand-emerald/20 text-center bg-brand-obsidian shadow-2xl">
+        <BlockWrapper className="bg-brand-emerald/[0.05] py-32">
+          <div className="p-10 rounded-[50px] border border-brand-emerald/20 text-center bg-brand-obsidian shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-brand-emerald shadow-[0_0_20px_#10b981]" />
             <h2 className="text-white font-display font-black text-3xl mb-6 uppercase tracking-tighter">Давайте найдем ваши деньги вместе. Бесплатно.</h2>
-            <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl mb-8">
-              <img src="assets/Квиз.jpg" alt="Map" className="w-full h-auto opacity-80" />
+            <p className="text-brand-zinc/50 text-base mb-8 font-medium">Экспресс-диагностика (20-30 мин). Просканируем проект и подсветим точки роста. Беру только 3-5 человек в неделю.</p>
+            <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-2xl mb-10 aspect-video">
+              <img src="assets/Квиз.jpg" alt="Map" className="w-full h-full object-cover opacity-60" />
             </div>
             <button 
               onClick={() => window.location.href = 'https://t.me/monetizator_osipuk'}
-              className="w-full h-20 emerald-gradient text-white rounded-2xl font-black text-base uppercase tracking-widest flex items-center justify-center gap-4"
+              className="w-full h-20 emerald-gradient text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-4 shadow-xl active:scale-95 transition-all"
             >
-              Записаться на разбор <MessageCircle className="w-6 h-6" />
+              ЗАПИСАТЬСЯ НА РАЗБОР <MessageCircle className="w-6 h-6" />
             </button>
           </div>
         </BlockWrapper>
 
-        <footer className="py-24 px-8 border-t border-white/5 bg-black/20 text-center">
+        <footer className="py-32 px-8 border-t border-white/5 bg-black/40 text-center relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-emerald/20 to-transparent" />
           <SpinningCoin className="mb-16" size="w-32 h-32" />
-          <div className="grid gap-4 mb-20">
-            <a href="https://t.me/monetizator_osipuk" className="p-6 rounded-3xl bg-white/5 border border-white/10 font-black text-white uppercase tracking-widest text-xs">Личный Telegram</a>
-            <a href="https://t.me/+P3O1S_T2vR80NmIy" className="p-6 rounded-3xl bg-white/5 border border-white/10 font-black text-white uppercase tracking-widest text-xs">Канал Монетизатора</a>
+          <h3 className="text-2xl font-display font-black text-white uppercase tracking-tighter mb-12">Перестаньте искать деньги далеко.<br/>Давайте найдем их у вас под ногами.</h3>
+          <div className="grid gap-4 mb-20 max-w-[320px] mx-auto">
+            <a href="https://t.me/monetizator_osipuk" className="h-16 rounded-2xl bg-white/5 border border-white/10 font-black text-white uppercase tracking-widest text-[10px] flex items-center justify-center hover:bg-white/10 transition-all gap-3">
+              <MessageCircle className="w-4 h-4 text-brand-emerald" /> Личный Telegram
+            </a>
+            <a href="https://t.me/+P3O1S_T2vR80NmIy" className="h-16 rounded-2xl bg-white/5 border border-white/10 font-black text-white uppercase tracking-widest text-[10px] flex items-center justify-center hover:bg-white/10 transition-all gap-3">
+              <ExternalLink className="w-4 h-4 text-brand-emerald" /> Канал Монетизатора
+            </a>
           </div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.6em] opacity-20 font-black">MONETIZATOR // PROTOCOL // 2026</div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.8em] text-brand-zinc/20 font-black">MONETIZATOR // PROTOCOL // 2026</div>
         </footer>
 
       </div>
