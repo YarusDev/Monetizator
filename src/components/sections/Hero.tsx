@@ -2,7 +2,6 @@ import { motion } from 'motion/react';
 import { Check, ArrowDown, MessageCircle } from 'lucide-react';
 import { BlockWrapper } from '../ui/BlockWrapper';
 import { SpinningCoin } from '../ui/SpinningCoin';
-import { ScrollRouteLine } from '../ui/ScrollRouteLine';
 import { Quiz } from './Quiz';
 
 export const Hero = ({ 
