@@ -1,13 +1,70 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import {
-  MessageCircle, Check, X, Timer, TrendingUp, Users, Target,
+  MessageCircle, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck,
   ChevronRight, ArrowDown, Award, BarChart3, Rocket, Handshake, ExternalLink, Send, Share2, AlertTriangle
 } from 'lucide-react';
 import { leadService } from './lib/leadService';
-import { Quiz } from './components/sections/Quiz';
+
+// --- Types ---
+interface QuizStep {
+  question: string;
+  options: string[];
+  insight: string;
+}
 
 // --- Content Data ---
+const QUIZ_STEPS: QuizStep[] = [
+  {
+    question: "В какой роли вы сейчас создаете ценность?",
+    options: [
+      "Я эксперт / Частный специалист (продаю свои знания, оказываю услуги)",
+      "Я предприниматель",
+      "Я собственник бизнеса (у меня есть команда и продукт)",
+      "Я организатор / Лидер сообщества (вокруг меня много людей)"
+    ],
+    insight: "Важно: У каждой роли — своя 'золотая жила'. Эксперты часто сидят на нераспакованной базе, а собственники — на недооцененных коллаборациях. Мы настроим ваш аудит именно под вашу специфику."
+  },
+  {
+    question: "Какой актив у вас сейчас самый объемный, но приносит меньше всего денег?",
+    options: [
+      "Клиентская база (старые контакты, переписки)",
+      "Социальный капитал (связи, окружение, нетворкинг)",
+      "Личный бренд / Доверие (меня знают, но покупают мало)",
+      "Продукт / Экспертность (много даю бесплатно, не упаковано)"
+    ],
+    insight: "Знаете ли вы? По статистике, работа со 'старой' базой в 5-7 раз дешевле, чем привлечение новых лидов. Вы прямо сейчас платите 'налог на бездействие', оставляя эти деньги конкурентам."
+  },
+  {
+    question: "Что сейчас больше всего мешает вам вырасти в 2-3 раза?",
+    options: [
+      "Сжигаю бюджет на рекламу, а лиды 'холодные' или дорогие",
+      "Живу на 'сарафанке' — то густо, то пусто",
+      "Не знаю, как продавать дорого, не 'впаривая'",
+      "Нет системы: всё держится на моих личных усилиях"
+    ],
+    insight: "Главная ловушка: Реклама не исправляет хаос, она его усиливает. Если система 'дырявая', новый трафик просто быстрее сожжет ваши деньги. Мы сначала 'залатаем' дыры через ваши внутренние ресурсы."
+  },
+  {
+    question: "Как часто вы системно контактируете с теми, кто у вас уже когда-то покупал или интересовался?",
+    options: [
+      "Раз в неделю / месяц (есть воронка)",
+      "Очень редко / По настроению",
+      "Вообще не контактирую, они просто лежат в CRM/записной книжке"
+    ],
+    insight: "Это ваша 'точка слива'. 15 из 17 наших клиентов находят первые деньги именно здесь, просто правильно напомнив о себе через 'мягкий вход'. Это те самые деньги под ногами."
+  },
+  {
+    question: "Какую сумму чистой прибыли вы планируете «достать» из своего бизнеса в ближайшие 30 дней?",
+    options: [
+      "До 100 000 ₽",
+      "100 000 – 500 000 ₽",
+      "Более 500 000 ₽"
+    ],
+    insight: "Цифра реальна. Мой личный результат — +380 000 ₽ за 3 дня на своих же ресурсах. Ваш результат зависит только от точности выбранной стратегии монетизации."
+  }
+];
+
 const CASES = [
   {
     id: 1,
@@ -104,13 +161,79 @@ const ProductCard = ({ name, price, img, desc, accentColor = "brand-emerald", ct
         <button
           onClick={() => window.location.href = `https://t.me/monetizator_osipuk?text=${encodeURIComponent(`Интересует ${name}`)}`}
           className={`w-full h-14 border rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${isGold
-            ? 'bg-brand-gold/10 border-brand-gold/20 text-brand-gold hover:bg-brand-gold/20'
-            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+              ? 'bg-brand-gold/10 border-brand-gold/20 text-brand-gold hover:bg-brand-gold/20'
+              : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
             }`}
         >
           {cta} <ExternalLink className="w-4 h-4" />
         </button>
       </div>
+    </div>
+  );
+};
+
+const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [showInsight, setShowInsight] = useState(false);
+
+  const handleOption = (opt: string) => {
+    const newAnswers = [...answers, opt];
+    setAnswers(newAnswers);
+    setShowInsight(true);
+  };
+
+  const nextStep = () => {
+    setShowInsight(false);
+    if (step < QUIZ_STEPS.length - 1) {
+      setStep(step + 1);
+    } else {
+      onComplete(answers);
+    }
+  };
+
+  const current = QUIZ_STEPS[step];
+  const progress = ((step + 1) / QUIZ_STEPS.length) * 100;
+
+  return (
+    <div className="glass-card p-8 min-h-[460px] flex flex-col shadow-2xl border-white/10">
+      <div className="flex justify-between items-center mb-8">
+        <span className="font-mono text-[10px] text-brand-emerald font-bold uppercase tracking-widest">Вопрос {step + 1}/5</span>
+        <div className="w-32 h-1.5 bg-white/5 rounded-full overflow-hidden">
+          <motion.div className="h-full bg-brand-emerald shadow-[0_0_10px_#10b981]" initial={{ width: 0 }} animate={{ width: `${progress}%` }} />
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {!showInsight ? (
+          <motion.div key="q" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+            <h3 className="text-2xl font-black text-white mb-8 leading-[1.2] tracking-tight">{current.question}</h3>
+            <div className="space-y-4">
+              {current.options.map((opt, i) => (
+                <button key={i} onClick={() => handleOption(opt)} className="w-full p-6 text-left rounded-2xl bg-white/5 border border-white/10 hover:border-brand-emerald/50 hover:bg-brand-emerald/5 transition-all group active:scale-[0.98]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-semibold text-brand-zinc group-hover:text-white leading-snug">{opt}</span>
+                    <ArrowRight className="w-5 h-5 text-brand-zinc/20 group-hover:text-brand-emerald group-hover:translate-x-1 transition-all" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div key="i" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col flex-1">
+            <div className="p-8 rounded-3xl bg-brand-emerald/10 border border-brand-emerald/20 mb-8 relative">
+              <div className="flex items-center gap-3 mb-6">
+                <ShieldCheck className="w-6 h-6 text-brand-emerald" />
+                <span className="text-xs font-black text-brand-emerald uppercase tracking-widest">Инсайт монетизатора</span>
+              </div>
+              <p className="text-lg text-white leading-[1.4] italic font-medium">"{current.insight}"</p>
+            </div>
+            <button onClick={nextStep} className="mt-auto w-full h-16 bg-white text-black rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl">
+              ДАЛЕЕ <ChevronRight className="w-5 h-5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -502,7 +625,7 @@ export default function App() {
           </div>
         </BlockWrapper>
 
-        {/* Блок 6: С кем мы не сработаемся */}
+        {/* Блок 6: С кем мы не сработаемся (RESTORED) */}
         <BlockWrapper className="bg-red-500/[0.02] border-y border-red-500/10">
           <SectionHeader title="С кем мы не сработаемся" subTitle="Я ценю свое время и ваш результат. Поэтому я работаю не со всеми." />
           <div className="space-y-6">
@@ -560,7 +683,7 @@ export default function App() {
         {/* Доп блок: Калькулятор */}
         <LossCalculator />
 
-        {/* Блоки 7-9: Услуги */}
+        {/* Блоки 7-9: Услуги (UNIFIED STYLE) */}
         <BlockWrapper id="services">
           <SectionHeader title="Линейка продуктов" subTitle="От точечной диагностики до системного сопровождения." />
 
