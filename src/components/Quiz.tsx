@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ChevronRight, 
   ChevronLeft, 
   Timer,
-  ShieldCheck,
   ArrowRight
 } from 'lucide-react';
 
@@ -139,12 +138,11 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
     }
   };
 
+
   const back = () => {
     setShowInsight(false);
     if (step > 0) setStep(step - 1);
   };
-
-  const progress = ((step + 1) / questions.length) * 100;
 
   return (
     <div className="bg-brand-charcoal/50 border border-white/5 rounded-[40px] p-8 relative overflow-hidden shadow-2xl backdrop-blur-md">

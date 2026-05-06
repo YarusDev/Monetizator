@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import {
-  MessageCircle, ArrowRight, Check, X, Timer, TrendingUp, Users, Target, ShieldCheck,
+  MessageCircle, Check, X, Timer, TrendingUp, Users, Target,
   ChevronRight, ArrowDown, Award, BarChart3, Rocket, Handshake, ExternalLink, Send, Share2, AlertTriangle
 } from 'lucide-react';
 import { leadService } from './lib/leadService';
