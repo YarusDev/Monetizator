@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const SectionHeader = ({ title, subTitle, align = "left" }: { title: string, subTitle?: string, align?: "left" | "center" }) => (
     <div className={`mb-12 ${align === "center" ? "text-center" : ""}`}>
         <h2 className="text-white font-display font-black text-4xl mb-6 tracking-tighter uppercase leading-[1.1]">

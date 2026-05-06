@@ -1,4 +1,3 @@
-import React from 'react';
 import { MessageCircle, Send, Share2 } from 'lucide-react';
 import { SpinningCoin } from '../ui/SpinningCoin';
 import { SectionHeader } from '../ui/SectionHeader';

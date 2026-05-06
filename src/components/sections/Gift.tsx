@@ -1,4 +1,3 @@
-import React from 'react';
 import { Rocket, MessageCircle } from 'lucide-react';
 import { BlockWrapper } from '../ui/BlockWrapper';
 

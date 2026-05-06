@@ -1,4 +1,3 @@
-import React from 'react';
 import { Users, TrendingUp, MessageCircle, Target, Handshake, BarChart3, Timer } from 'lucide-react';
 import { BlockWrapper } from '../ui/BlockWrapper';
 import { SectionHeader } from '../ui/SectionHeader';
