@@ -1,18 +1,19 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X } from 'lucide-react';
 
 export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
     const menuItems = [
         { label: 'Главная', id: 'home' },
-        { label: 'Об эксперте', id: 'expert' },
-        { label: 'Кейсы', id: 'cases' },
-        { label: 'Манифест', id: 'manifesto' },
-        { label: 'Анти-цели', id: 'antitarget' },
-        { label: 'Метод 7 источников', id: 'method' },
-        { label: 'Калькулятор', id: 'calculator' },
-        { label: 'Услуги', id: 'services' },
+        { label: 'Об экспертизе', id: 'expert' },
+        { label: 'Кейсы с цифрами', id: 'cases' },
+        { label: 'Чем отличаюсь', id: 'manifesto' },
+        { label: 'С кем не сработаемся', id: 'antitarget' },
+        { label: 'Мой метод', id: 'method' },
+        { label: 'Калькулятор прибыли', id: 'calculator' },
+        { label: 'Услуги и цены', id: 'services' },
         { label: 'Спецпредложение', id: 'gift' },
+
         { label: 'Контакты', id: 'contacts' },
+
     ];
 
 
@@ -20,7 +21,7 @@ export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
