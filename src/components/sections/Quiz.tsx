@@ -1,10 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  ChevronRight, 
-  ChevronLeft, 
+  ArrowRight, 
   Timer,
-  ArrowRight,
   Users as UsersIcon
 } from 'lucide-react';
 
@@ -118,14 +116,14 @@ const QUIZ_CONFIG = {
   }
 };
 
-export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
+export const Quiz = ({ onComplete, onShowInsight }: { onComplete: (data: any) => void; onShowInsight: (insight: any) => void }) => {
   // Load state from localStorage
   const savedState = JSON.parse(localStorage.getItem('monetizator_quiz_state') || 'null');
   
   const [step, setStep] = useState(savedState?.step || 0);
   const [branch, setBranch] = useState<string | null>(savedState?.branch || null);
   const [answers, setAnswers] = useState<any[]>(savedState?.answers || []);
-  const [showInsight, setShowInsight] = useState(false);
+
   const [activeUsers, setActiveUsers] = useState(12);
   const [secondsRemaining, setSecondsRemaining] = useState(45);
 
@@ -163,32 +161,43 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
     return QUIZ_CONFIG.initialQuestion;
   }, [step, branch]);
 
-  const handleSelect = (val: string) => {
+  const next = (answerLabel?: string) => {
     const newAnswers = [...answers];
-    newAnswers[step] = val;
-    setAnswers(newAnswers);
-    
-    if (step === 0) {
-      const selectedOption = QUIZ_CONFIG.initialQuestion.options.find(o => o.label === val);
-      if (selectedOption) setBranch(selectedOption.value);
+    if (answerLabel) {
+      newAnswers[step] = answerLabel;
+      setAnswers(newAnswers);
     }
     
-    setShowInsight(true);
-  };
+    if (step === 0 && answerLabel) {
+      const selectedOption = QUIZ_CONFIG.initialQuestion.options.find(o => o.label === answerLabel);
+      if (selectedOption) setBranch(selectedOption.value);
+    }
 
-  const next = () => {
-    setShowInsight(false);
-    if (step < 4) {
-      setStep(step + 1);
-    } else {
+    if (step === 4) {
+      onComplete(newAnswers);
       localStorage.removeItem('monetizator_quiz_state');
-      onComplete(answers);
+    } else {
+      setStep((prev: number) => prev + 1);
     }
   };
 
   const back = () => {
-    setShowInsight(false);
-    if (step > 0) setStep(step - 1);
+    if (step > 0) {
+      setStep((prev: number) => prev - 1);
+    }
+  };
+
+  const handleSelect = (val: string) => {
+    if (currentQuestionData.insight) {
+      onShowInsight({
+        text: currentQuestionData.insight,
+        onNext: () => next(val),
+        onBack: back,
+        showBack: step > 0
+      });
+    } else {
+      next(val);
+    }
   };
 
   return (
@@ -253,8 +262,6 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
             })}
           </div>
         </motion.div>
-      </AnimatePresence>
-
       </AnimatePresence>
     </div>
   );
