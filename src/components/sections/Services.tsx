@@ -11,6 +11,7 @@ interface Product {
     price: number;
     currency: string;
     description: string;
+    image_url?: string;
     order_index: number;
     is_active: boolean;
 }

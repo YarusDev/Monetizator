@@ -29,7 +29,7 @@ const ICON_CATEGORIES = {
   'Интерфейс': ['Plus', 'Minus', 'XCircle', 'ArrowRight', 'ChevronRight', 'Smartphone', 'Laptop', 'Mail', 'Bell', 'Calendar']
 };
 
-const ALL_COMMON_ICONS = Object.values(ICON_CATEGORIES).flat();
+// Icons library initialized
 
 interface ContentBlock {
   id: string;

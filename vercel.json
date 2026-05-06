@@ -1,0 +1,8 @@
+{
+  "github": {
+    "silent": true
+  },
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "ignoreCommand": "bash -c 'if [ \"$VERCEL_GIT_COMMIT_REF\" == \"monetizator\" ]; then exit 0; else exit 1; fi'"
+}
