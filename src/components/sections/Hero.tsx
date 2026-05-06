@@ -14,7 +14,7 @@ export const Hero = ({
   isSubmitting 
 }: any) => {
   return (
-    <BlockWrapper className="min-h-[90dvh] flex flex-col justify-center">
+    <BlockWrapper className="min-h-[90dvh] flex flex-col justify-center pt-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
             {/* Spinning Coin Section */}
             <SpinningCoin className="mb-10" />

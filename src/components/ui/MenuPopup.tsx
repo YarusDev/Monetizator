@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, MessageCircle, ArrowRight } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
     const menuItems = [
@@ -15,13 +15,7 @@ export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         { label: 'Контакты', id: 'contacts' },
     ];
 
-    const handleScroll = (id: string) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-            onClose();
-        }
-    };
+
 
     return (
         <AnimatePresence>
@@ -30,7 +24,7 @@ export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[300] bg-[#050505] flex flex-col w-screen h-screen left-0 top-0"
+                    className="fixed inset-0 z-[1000] bg-[#050505] flex flex-col w-screen h-screen left-0 top-0"
                 >
                     {/* Header inside Menu */}
                     <div className="flex justify-between items-center px-6 py-5 border-b border-white/5">
