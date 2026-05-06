@@ -19,6 +19,7 @@ export default function App() {
   const [userName, setUserName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizData, setQuizData] = useState<any>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleQuizComplete = (data: any) => {
     setQuizData(data);
@@ -58,7 +59,8 @@ export default function App() {
       <ScrollRouteLine />
 
       <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian/80 shadow-2xl relative border-x border-white/5 backdrop-blur-sm">
-        <Header />
+        <Header onOpenMenu={() => setIsMenuOpen(true)} />
+        <MenuPopup isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
         {/* Блок 1: Главный экран + Квиз */}
         <div id="home">

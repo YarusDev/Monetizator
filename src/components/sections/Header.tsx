@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import { MenuPopup } from '../ui/MenuPopup';
 
-export const Header = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+export const Header = ({ onOpenMenu }: { onOpenMenu: () => void }) => {
     return (
         <header className="fixed top-0 left-0 right-0 z-[150] w-full px-6 py-5 bg-brand-obsidian/90 backdrop-blur-xl border-b border-white/5">
             <div className="flex justify-between items-center max-w-[460px] mx-auto relative">
@@ -21,7 +18,7 @@ export const Header = () => {
 
                 {/* Hamburger Menu Button - Right */}
                 <button 
-                    onClick={() => setIsMenuOpen(true)}
+                    onClick={onOpenMenu}
                     className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-1.5 group active:scale-95 transition-all"
                 >
                     <div className="w-5 h-0.5 bg-brand-emerald rounded-full group-hover:w-6 transition-all" />
@@ -29,8 +26,6 @@ export const Header = () => {
                     <div className="w-3 h-0.5 bg-brand-emerald rounded-full self-start ml-3 group-hover:w-5 transition-all" />
                 </button>
             </div>
-
-            <MenuPopup isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
         </header>
     );
 };

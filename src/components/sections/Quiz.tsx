@@ -20,8 +20,8 @@ const ExpertInsightModal = ({ insight, onNext, onBack, showBack }: { insight: st
     >
       <div className="absolute top-0 left-0 w-full h-1 bg-brand-emerald shadow-[0_0_15px_#10b981]" />
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-14 h-14 rounded-2xl overflow-hidden border border-brand-emerald/30 shadow-lg">
-          <img src="assets/PhotoExpert.jpg" alt="Expert" className="w-full h-full object-cover" />
+        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-brand-emerald shadow-[0_0_20px_rgba(16,185,129,0.4)] shrink-0">
+          <img src="assets/PhotoExpertquiz.jpg" alt="Expert" className="w-full h-full object-cover" />
         </div>
         <div>
           <div className="font-mono text-[10px] text-brand-emerald font-black uppercase tracking-widest">Инсайт эксперта</div>
@@ -252,7 +252,7 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
             <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === step ? 'w-8 bg-brand-emerald shadow-[0_0_10px_#10b981]' : 'w-3 bg-white/10'}`} />
           ))}
         </div>
-        <div className="absolute top-10 right-0 text-[8px] text-brand-zinc/30 font-black uppercase tracking-widest flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full border border-white/5 backdrop-blur-sm">
+        <div className="absolute top-4 right-0 text-[8px] text-brand-zinc/30 font-black uppercase tracking-widest flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full border border-white/5 backdrop-blur-sm">
           <Timer className={`w-2.5 h-2.5 ${secondsRemaining < 20 ? 'text-red-500 animate-pulse' : ''}`} /> 
           ~{secondsRemaining} сек до финиша
         </div>
