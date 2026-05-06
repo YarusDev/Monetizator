@@ -12,7 +12,7 @@ import {
 const ExpertInsightModal = ({ insight, onNext, onBack, showBack }: { insight: string; onNext: () => void; onBack: () => void; showBack: boolean }) => (
   <motion.div 
     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-    className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md"
+    className="fixed inset-0 z-[999] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md"
   >
     <motion.div 
       initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}

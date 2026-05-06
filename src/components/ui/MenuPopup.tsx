@@ -47,37 +47,39 @@ export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     </div>
 
                     {/* Scrollable Content with Custom Scrollbar */}
-                    <div className="flex-1 overflow-y-auto px-8 pt-24 pb-12 custom-scrollbar">
-                        <nav className="flex flex-col gap-2">
-                            {menuItems.map((item, index) => (
-                                <motion.button
-                                    key={item.id}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: index * 0.05 }}
-                                    onClick={() => handleScroll(item.id)}
-                                    className="flex items-center justify-between p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:bg-brand-emerald/10 hover:border-brand-emerald/30 transition-all group text-left"
-                                >
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-[10px] font-mono text-brand-zinc/30 font-black uppercase tracking-[0.2em]">0{index + 1}</span>
-                                        <span className="text-xl font-display font-bold text-white uppercase tracking-tight group-hover:text-brand-emerald transition-colors">{item.label}</span>
-                                    </div>
-                                    <ArrowRight className="w-6 h-6 text-brand-zinc/10 group-hover:text-brand-emerald group-hover:translate-x-2 transition-all" />
-                                </motion.button>
-                            ))}
-                        </nav>
+                    <div className="flex-1 overflow-y-auto custom-scrollbar pt-32 pb-12">
+                        <div className="max-w-[460px] mx-auto px-6">
+                            <nav className="flex flex-col gap-3">
+                                {menuItems.map((item, index) => (
+                                    <motion.button
+                                        key={item.label}
+                                        onClick={() => {
+                                            document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                                            onClose();
+                                        }}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        className="w-full p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-brand-emerald/30 hover:bg-brand-emerald/5 transition-all group flex items-center gap-6"
+                                    >
+                                        <span className="font-mono text-[10px] text-brand-emerald font-black opacity-40 group-hover:opacity-100 transition-opacity">
+                                            {(index + 1).toString().padStart(2, '0')}
+                                        </span>
+                                        <span className="text-xl font-display font-black text-white uppercase tracking-tight group-hover:text-brand-emerald transition-colors">
+                                            {item.label}
+                                        </span>
+                                    </motion.button>
+                                ))}
+                            </nav>
 
-                        {/* Contacts in Menu */}
-                        <div className="mt-12 p-8 rounded-[32px] bg-white/[0.02] border border-white/5 space-y-6">
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center border border-brand-gold/20">
-                                    <MessageCircle className="w-6 h-6 text-brand-gold" />
-                                </div>
-                                <span className="font-mono text-[10px] text-brand-gold uppercase tracking-[0.3em] font-black">Связь напрямую</span>
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                <a href="https://t.me/monetizator_osipuk" className="w-full py-4 rounded-xl bg-brand-emerald text-black font-black uppercase text-[10px] tracking-widest text-center shadow-[0_0_20px_rgba(16,185,129,0.2)]">Telegram</a>
-                                <a href="https://wa.me/79119252525" className="w-full py-4 rounded-xl bg-white/5 border border-white/10 text-white font-black uppercase text-[10px] tracking-widest text-center">WhatsApp</a>
+                            {/* Contact Links in Menu */}
+                            <div className="mt-16 pt-10 border-t border-white/5 grid grid-cols-2 gap-4">
+                                <a href="https://t.me/osipuk_s" target="_blank" className="h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center gap-3 text-brand-zinc hover:text-white hover:bg-white/10 transition-all font-black text-[10px] uppercase tracking-widest">
+                                    Telegram
+                                </a>
+                                <a href="https://wa.me/79000000000" target="_blank" className="h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center gap-3 text-brand-zinc hover:text-white hover:bg-white/10 transition-all font-black text-[10px] uppercase tracking-widest">
+                                    WhatsApp
+                                </a>
                             </div>
                         </div>
                     </div>

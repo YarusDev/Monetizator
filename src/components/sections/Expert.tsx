@@ -1,4 +1,4 @@
-import { Award, Users, TrendingUp } from 'lucide-react';
+import { Medal, Handshake, TrendingUp, Zap, Target, Globe } from 'lucide-react';
 import { BlockWrapper } from '../ui/BlockWrapper';
 import { SectionHeader } from '../ui/SectionHeader';
 
@@ -19,12 +19,12 @@ export const Expert = () => {
             </p>
             <div className="space-y-6 mb-12">
                 {[
-                    { i: Award, t: "Дипломированный монетизатор:", d: "выпускник школы нестандартного мышления Владислава Бермуды." },
-                    { i: Users, t: "Профессиональный нетворкер:", d: "эксперт Первой школы профессионального нетворинга Екатерины Косенко." },
+                    { i: Medal, t: "Дипломированный монетизатор:", d: "выпускник школы нестандартного мышления Владислава Бермуды." },
+                    { i: Handshake, t: "Профессиональный нетворкер:", d: "эксперт Первой школы профессионального нетворинга Екатерины Косенко." },
                     { i: TrendingUp, t: "Результат на своих ресурсах:", d: "+380 000 ₽ всего за 3 дня." },
-                    { i: TrendingUp, t: "Скорость активации:", d: "15 из 17 человек находят деньги уже в 1-й день." },
-                    { i: TrendingUp, t: "Эффективность:", d: "15 заявок в день при 0 вложений в рекламу." },
-                    { i: TrendingUp, t: "Масштаб:", d: "Через мои форматы прошли 200+ предпринимателей и экспертов." }
+                    { i: Zap, t: "Скорость активации:", d: "15 из 17 человек находят деньги уже в 1-й день." },
+                    { i: Target, t: "Эффективность:", d: "15 заявок в день при 0 вложений в рекламу." },
+                    { i: Globe, t: "Масштаб:", d: "Через мои форматы прошли 200+ предпринимателей и экспертов." }
                 ].map((item, index) => (
                     <div key={index} className="flex gap-6 items-start">
                         <div className="w-12 h-12 rounded-xl bg-brand-emerald/5 border border-brand-emerald/10 flex items-center justify-center shrink-0">

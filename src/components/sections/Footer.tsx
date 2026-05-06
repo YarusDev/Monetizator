@@ -20,10 +20,13 @@ export const Footer = () => {
                     </div>
                 </div>
 
-                {/* Developer / Partner Block - NOW AT THE VERY BOTTOM */}
                 <div className="flex flex-col items-center gap-6 w-full p-8 rounded-[30px] bg-white/[0.02] border border-white/5 mt-4">
                     <div className="flex flex-col items-center gap-3">
-                        <img src="assets/logoyarusdev.png" alt="Yarusdev" className="h-10 opacity-40 hover:opacity-100 transition-opacity" />
+                        <img 
+                            src="assets/logoyarusdev.png" 
+                            alt="Yarusdev" 
+                            className="h-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] animate-pulse transition-all duration-1000" 
+                        />
                         <p className="text-[10px] font-black text-brand-zinc/30 uppercase tracking-[0.3em]">Сделано Yarusdev</p>
                     </div>
                     <a 
