@@ -24,7 +24,7 @@ export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[1000] bg-[#050505] flex flex-col w-screen h-screen left-0 top-0"
+                    className="fixed inset-y-0 left-1/2 -translate-x-1/2 z-[1000] bg-[#050505] flex flex-col w-full max-w-[460px] border-x border-white/5"
                 >
                     {/* Header inside Menu */}
                     <div className="flex justify-between items-center px-6 py-5 border-b border-white/5">

@@ -8,46 +8,7 @@ import {
   Users as UsersIcon
 } from 'lucide-react';
 
-// Инсайт Монетизатора (Modal)
-const ExpertInsightModal = ({ insight, onNext, onBack, showBack }: { insight: string; onNext: () => void; onBack: () => void; showBack: boolean }) => (
-  <motion.div 
-    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-    className="fixed inset-0 z-[999] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md"
-  >
-    <motion.div 
-      initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
-      className="bg-brand-obsidian border border-brand-emerald/30 p-8 rounded-[40px] max-w-[400px] w-full shadow-[0_0_50px_rgba(16,185,129,0.2)] relative overflow-hidden"
-    >
-      <div className="absolute top-0 left-0 w-full h-1 bg-brand-emerald shadow-[0_0_15px_#10b981]" />
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-brand-emerald shadow-[0_0_20px_rgba(16,185,129,0.4)] shrink-0">
-          <img src="assets/PhotoExpertquiz.jpg" alt="Expert" className="w-full h-full object-cover" />
-        </div>
-        <div>
-          <div className="font-mono text-[10px] text-brand-emerald font-black uppercase tracking-widest">Инсайт эксперта</div>
-          <div className="text-white font-display font-black text-lg uppercase tracking-tight">Сергей Осипук</div>
-        </div>
-      </div>
-      <p className="text-brand-zinc text-lg leading-relaxed font-medium mb-10">{insight}</p>
-      <div className="w-full flex gap-3">
-        {showBack && (
-          <button 
-            onClick={onBack}
-            className="flex-1 h-16 rounded-2xl bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white/10 transition-all"
-          >
-            <ChevronLeft className="w-4 h-4" /> НАЗАД
-          </button>
-        )}
-        <button 
-          onClick={onNext}
-          className="flex-[2] h-16 rounded-2xl emerald-gradient text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
-        >
-          ПРОДОЛЖИТЬ <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-    </motion.div>
-  </motion.div>
-);
+
 
 // Конфигурация вопросов
 const QUIZ_CONFIG = {
@@ -294,15 +255,6 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
         </motion.div>
       </AnimatePresence>
 
-      <AnimatePresence>
-        {showInsight && (
-          <ExpertInsightModal 
-            insight={currentQuestionData.insight} 
-            onNext={next} 
-            onBack={back}
-            showBack={step > 0}
-          />
-        )}
       </AnimatePresence>
     </div>
   );

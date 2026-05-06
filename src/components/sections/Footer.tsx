@@ -25,8 +25,15 @@ export const Footer = () => {
                         <img 
                             src="assets/logoyarusdev.png" 
                             alt="Yarusdev" 
-                            className="h-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] animate-pulse transition-all duration-1000" 
+                            className="h-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] transition-all duration-1000" 
+                            style={{ animation: 'softPulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}
                         />
+                        <style>{`
+                            @keyframes softPulse {
+                                0%, 100% { opacity: 1; filter: drop-shadow(0 0 15px rgba(255,255,255,0.4)); }
+                                50% { opacity: 0.7; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+                            }
+                        `}</style>
                         <p className="text-[10px] font-black text-brand-zinc/30 uppercase tracking-[0.3em]">Сделано Yarusdev</p>
                     </div>
                     <a 

@@ -13,6 +13,8 @@ import { Footer } from './components/sections/Footer';
 import { Header } from './components/sections/Header';
 import { Contacts } from './components/sections/Contacts';
 import { MenuPopup } from './components/ui/MenuPopup';
+import { AnimatePresence, motion } from 'motion/react';
+import { ChevronRight } from 'lucide-react';
 
 export default function App() {
   const [quizCompleted, setQuizCompleted] = useState(false);
@@ -20,6 +22,7 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizData, setQuizData] = useState<any>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeInsight, setActiveInsight] = useState<{ text: string, onNext: () => void } | null>(null);
 
   const handleQuizComplete = (data: any) => {
     setQuizData(data);
@@ -54,6 +57,40 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-brand-obsidian text-white font-sans selection:bg-brand-emerald selection:text-white">
+      {/* GLOBAL INSIGHT MODAL */}
+      <AnimatePresence>
+        {activeInsight && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-brand-obsidian border border-brand-emerald/30 p-8 rounded-[40px] max-w-[400px] w-full shadow-[0_0_50px_rgba(16,185,129,0.4)] relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-brand-emerald shadow-[0_0_15px_#10b981]" />
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-brand-emerald shadow-[0_0_20px_rgba(16,185,129,0.4)] shrink-0">
+                  <img src="assets/PhotoExpertquiz.jpg" alt="Expert" className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <div className="font-mono text-[10px] text-brand-emerald font-black uppercase tracking-widest">Инсайт эксперта</div>
+                  <div className="text-white font-display font-black text-lg uppercase tracking-tight">Сергей Осипук</div>
+                </div>
+              </div>
+              <p className="text-brand-zinc text-lg leading-relaxed font-medium mb-10">{activeInsight.text}</p>
+              <button 
+                onClick={() => {
+                  activeInsight.onNext();
+                  setActiveInsight(null);
+                }}
+                className="w-full h-16 rounded-2xl emerald-gradient text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
+              >
+                ПРОДОЛЖИТЬ <ChevronRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian/80 shadow-2xl relative border-x border-white/5 backdrop-blur-sm">
         <Header onOpenMenu={() => setIsMenuOpen(true)} />
@@ -69,6 +106,7 @@ export default function App() {
             handleQuizComplete={handleQuizComplete}
             handleFinalSubmit={handleFinalSubmit}
             isSubmitting={isSubmitting}
+            onShowInsight={setActiveInsight}
           />
         </div>
 

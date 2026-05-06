@@ -11,7 +11,8 @@ export const Hero = ({
   setUserName, 
   handleQuizComplete, 
   handleFinalSubmit, 
-  isSubmitting 
+  isSubmitting,
+  onShowInsight
 }: any) => {
   return (
     <BlockWrapper className="min-h-[90dvh] flex flex-col justify-center pt-10">
@@ -66,7 +67,7 @@ export const Hero = ({
                         <p className="text-xl text-center font-medium text-brand-zinc/70 leading-relaxed">
                             Ответьте на <span className="text-white font-black">5 вопросов</span> и получите <span className="text-brand-emerald font-black">персональную</span> карту из <span className="text-white font-black">3-х точек роста</span>
                         </p>
-                        <Quiz onComplete={handleQuizComplete} />
+                        <Quiz onComplete={handleQuizComplete} onShowInsight={onShowInsight} />
                     </div>
                 </div>
             ) : (
