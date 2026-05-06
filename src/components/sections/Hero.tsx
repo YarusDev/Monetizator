@@ -76,7 +76,7 @@ export const Hero = ({
                     </div>
                 </div>
             ) : (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 py-10">
+                <motion.div id="quiz-result" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 py-10">
                     <div className="p-10 rounded-[50px] bg-brand-emerald/10 border border-brand-emerald/30 shadow-2xl">
                         <h3 className="text-3xl font-black text-white mb-6 uppercase leading-[1.1] tracking-tighter">Анализ завершен!</h3>
                         <p className="text-lg text-brand-zinc/70 leading-relaxed mb-8">

@@ -21,11 +21,12 @@ export const SpinningCoin = ({ size = "w-48 h-48", className = "" }: { size?: st
             <motion.img
                 src="assets/LogoCoin.png"
                 alt="Logo Coin"
-                animate={{ rotateY: 360 }}
+                animate={{ rotateY: [0, 360, 360] }}
                 transition={{
-                    duration: 12,
+                    duration: 4,
                     repeat: Infinity,
-                    ease: "linear"
+                    times: [0, 0.5, 1],
+                    ease: "easeInOut"
                 }}
                 className={`${size} object-contain`}
             />

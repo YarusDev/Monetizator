@@ -1,47 +1,39 @@
-import { MessageCircle, Send, Share2 } from 'lucide-react';
-import { SpinningCoin } from '../ui/SpinningCoin';
-import { SectionHeader } from '../ui/SectionHeader';
-
 export const Footer = () => {
     return (
-        <footer className="py-24 px-8 border-t border-white/5 bg-black/20 relative">
-            <SpinningCoin className="mb-16" size="w-32 h-32" />
-            <SectionHeader title="Перестаньте искать деньги далеко." subTitle="Давайте найдем их у вас под ногами." />
+        <footer className="py-16 px-8 bg-black/40 border-t border-white/5 relative overflow-hidden">
+            <div className="flex flex-col items-center gap-12 max-w-[460px] mx-auto">
+                
+                {/* Legal Section */}
+                <div className="flex flex-col items-center gap-6 w-full opacity-30">
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="font-mono text-[9px] uppercase tracking-[0.5em] text-white font-black">ИП ОСИПУК С.В.</div>
+                        <div className="font-mono text-[8px] uppercase tracking-[0.2em] text-brand-zinc">ИНН: 780436856525 // ОГРНИП: 323784700143891</div>
+                    </div>
 
-            <div className="grid gap-5 mb-20">
-                <a href="https://t.me/monetizator_osipuk" className="flex items-center gap-6 p-8 rounded-[40px] bg-white/[0.03] border border-white/10 group transition-all">
-                    <div className="w-16 h-16 rounded-2xl bg-brand-emerald/10 flex items-center justify-center group-hover:scale-110 transition-transform border border-brand-emerald/20">
-                        <MessageCircle className="w-8 h-8 text-brand-emerald" />
+                    <div className="flex gap-8">
+                        <a href="#" className="font-mono text-[8px] uppercase tracking-widest hover:text-brand-emerald transition-colors">Политика конфиденциальности</a>
+                        <a href="#" className="font-mono text-[8px] uppercase tracking-widest hover:text-brand-emerald transition-colors">Договор оферты</a>
                     </div>
-                    <div>
-                        <div className="text-[11px] text-brand-emerald font-black uppercase tracking-widest mb-1">Написать лично</div>
-                        <div className="font-black text-white text-lg leading-none">@monetizator_osipuk</div>
-                    </div>
-                </a>
 
-                <a href="https://t.me/+P3O1S_T2vR80NmIy" className="flex items-center gap-6 p-8 rounded-[40px] bg-white/[0.03] border border-white/10 group transition-all">
-                    <div className="w-16 h-16 rounded-2xl bg-brand-emerald/10 flex items-center justify-center group-hover:scale-110 transition-transform border border-brand-emerald/20">
-                        <Send className="w-8 h-8 text-brand-emerald" />
+                    <div className="font-mono text-[8px] uppercase tracking-[0.6em] text-center font-black">
+                        MONETIZATOR // 2026 © Все права защищены
                     </div>
-                    <div>
-                        <div className="text-[11px] text-brand-emerald font-black uppercase tracking-widest mb-1">Telegram Канал</div>
-                        <div className="font-black text-white text-lg leading-none">Зайти в канал</div>
-                    </div>
-                </a>
+                </div>
 
-                <a href="https://wa.me/79219001331" className="flex items-center gap-6 p-8 rounded-[40px] bg-white/[0.03] border border-white/10 group transition-all">
-                    <div className="w-16 h-16 rounded-2xl bg-brand-emerald/10 flex items-center justify-center group-hover:scale-110 transition-transform border border-brand-emerald/20">
-                        <Share2 className="w-8 h-8 text-brand-emerald" />
+                {/* Developer / Partner Block - NOW AT THE VERY BOTTOM */}
+                <div className="flex flex-col items-center gap-6 w-full p-8 rounded-[30px] bg-white/[0.02] border border-white/5 mt-4">
+                    <div className="flex flex-col items-center gap-3">
+                        <img src="assets/logoyarusdev.png" alt="Yarusdev" className="h-6 opacity-40 hover:opacity-100 transition-opacity" />
+                        <p className="text-[10px] font-black text-brand-zinc/30 uppercase tracking-[0.3em]">Сделано Yarusdev</p>
                     </div>
-                    <div>
-                        <div className="text-[11px] text-brand-emerald font-black uppercase tracking-widest mb-1">WhatsApp</div>
-                        <div className="font-black text-white text-lg leading-none">Написать в WhatsApp</div>
-                    </div>
-                </a>
-            </div>
+                    <a 
+                        href="https://t.me/BelskiyAndrey?text=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82!%20%D0%AF%20%D0%BE%D1%82%20%D0%A1%D0%B5%D1%80%D0%B3%D0%B5%D1%8F%20%D0%9E%D1%81%D0%B8%D0%BF%D1%83%D0%BA%D0%B0.%20%D0%A5%D0%BE%D1%87%D1%83%20%D1%81%D0%B0%D0%B9%D1%82%20%D1%81%D0%BE%20%D1%81%D0%BA%D0%B8%D0%B4%D0%BA%D0%BE%D0%B9%2050%25%20%D0%BF%D0%BE%20%D0%BF%D1%80%D0%BE%D0%BC%D0%BE%D0%BA%D0%BE%D0%B4%D1%83%20%D0%A1%D0%95%D0%A0%D0%93%D0%95%D0%99"
+                        className="px-8 py-4 rounded-xl bg-brand-emerald/10 border border-brand-emerald/20 text-[10px] text-brand-emerald font-black uppercase tracking-widest hover:bg-brand-emerald hover:text-black transition-all shadow-[0_0_20px_rgba(16,185,129,0.1)]"
+                    >
+                        Хочу такой сайт со скидкой 50%
+                    </a>
+                </div>
 
-            <div className="pt-24 flex flex-col items-center gap-6 opacity-20">
-                <div className="font-mono text-[9px] uppercase tracking-[0.6em] text-center font-black leading-none">MONETIZATOR // PROTOCOL // 2026</div>
             </div>
         </footer>
     );

@@ -11,6 +11,8 @@ import { Calculator } from './components/sections/Calculator';
 import { Services } from './components/sections/Services';
 import { Gift } from './components/sections/Gift';
 import { Footer } from './components/sections/Footer';
+import { Header } from './components/sections/Header';
+import { Contacts } from './components/sections/Contacts';
 
 export default function App() {
   const [quizCompleted, setQuizCompleted] = useState(false);
@@ -21,7 +23,10 @@ export default function App() {
   const handleQuizComplete = (data: any) => {
     setQuizData(data);
     setQuizCompleted(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Smart scroll to result instead of top
+    setTimeout(() => {
+      document.getElementById('quiz-result')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
 
   const handleFinalSubmit = async () => {
@@ -53,43 +58,67 @@ export default function App() {
       <ScrollRouteLine />
 
       <div className="max-w-[460px] mx-auto min-h-screen bg-brand-obsidian/80 shadow-2xl relative border-x border-white/5 backdrop-blur-sm">
+        <Header />
 
         {/* Блок 1: Главный экран + Квиз */}
-        <Hero 
-          quizCompleted={quizCompleted}
-          quizData={quizData}
-          userName={userName}
-          setUserName={setUserName}
-          handleQuizComplete={handleQuizComplete}
-          handleFinalSubmit={handleFinalSubmit}
-          isSubmitting={isSubmitting}
-        />
+        <div id="home">
+          <Hero 
+            quizCompleted={quizCompleted}
+            quizData={quizData}
+            userName={userName}
+            setUserName={setUserName}
+            handleQuizComplete={handleQuizComplete}
+            handleFinalSubmit={handleFinalSubmit}
+            isSubmitting={isSubmitting}
+          />
+        </div>
 
         {/* Блок 2: Лидер среды (Об авторе) */}
-        <Expert />
+        <div id="expert">
+          <Expert />
+        </div>
 
         {/* Блок 3: Твердые результаты (Кейсы) */}
-        <Cases />
+        <div id="cases">
+          <Cases />
+        </div>
 
         {/* Блок 4: Манифест */}
-        <Manifesto />
+        <div id="manifesto">
+          <Manifesto />
+        </div>
 
         {/* Блок 6: С кем мы не сработаемся (Анти-цели) */}
-        <AntiTarget />
+        <div id="antitarget">
+          <AntiTarget />
+        </div>
 
         {/* Блок 5: Метод 7 источников */}
-        <Method />
+        <div id="method">
+          <Method />
+        </div>
 
         {/* Доп блок: Калькулятор */}
-        <Calculator />
+        <div id="calculator">
+          <Calculator />
+        </div>
 
         {/* Блоки 7-9: Услуги */}
-        <Services />
+        <div id="services">
+          <Services />
+        </div>
 
         {/* Блок 10: Подарок (Призыв к действию) */}
-        <Gift />
+        <div id="gift">
+          <Gift />
+        </div>
 
-        {/* Блок 11: Контакты (Футер) */}
+        {/* Блок 11: Контакты */}
+        <div id="contacts">
+          <Contacts />
+        </div>
+
+        {/* Финальный футер */}
         <Footer />
 
       </div>
