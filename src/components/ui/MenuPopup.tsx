@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, MessageCircle, Send, Share2 } from 'lucide-react';
+import { X, MessageCircle, Share2 } from 'lucide-react';
 
 interface MenuPopupProps {
     isOpen: boolean;
