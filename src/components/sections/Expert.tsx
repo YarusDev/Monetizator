@@ -25,14 +25,14 @@ export const Expert = () => {
                     { i: TrendingUp, t: "Скорость активации:", d: "15 из 17 человек находят деньги уже в 1-й день." },
                     { i: TrendingUp, t: "Эффективность:", d: "15 заявок в день при 0 вложений в рекламу." },
                     { i: TrendingUp, t: "Масштаб:", d: "Через мои форматы прошли 200+ предпринимателей и экспертов." }
-                ].map((item, i) => (
-                    <div key={i} className="flex gap-6 items-start">
-                        <div className="w-12 h-12 shrink-0 rounded-2xl bg-brand-emerald/10 flex items-center justify-center border border-brand-emerald/20">
+                ].map((item, index) => (
+                    <div key={index} className="flex gap-6 items-start">
+                        <div className="w-12 h-12 rounded-xl bg-brand-emerald/5 border border-brand-emerald/10 flex items-center justify-center shrink-0">
                             <item.i className="w-6 h-6 text-brand-emerald" />
                         </div>
-                        <div>
-                            <span className="text-base font-black text-white uppercase block mb-1 leading-tight">{item.t}</span>
-                            <span className="text-base text-brand-zinc/60 leading-[1.3]">{item.d}</span>
+                        <div className="flex flex-col gap-1.5">
+                            <h4 className="font-display font-black text-white text-sm uppercase tracking-wider">{item.t}</h4>
+                            <p className="text-brand-zinc/70 text-sm leading-relaxed text-left">{item.d}</p>
                         </div>
                     </div>
                 ))}

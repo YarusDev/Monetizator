@@ -246,14 +246,14 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
         </motion.div>
       </div>
 
-      <div className="flex justify-between items-center mb-10 pr-20">
-        <div className="flex gap-1.5">
+      <div className="flex justify-between items-start mb-10 pr-20 relative">
+        <div className="flex gap-1.5 pt-4">
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === step ? 'w-8 bg-brand-emerald shadow-[0_0_10px_#10b981]' : 'w-3 bg-white/10'}`} />
+            <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === step ? 'w-8 bg-brand-emerald shadow-[0_0_10px_#10b981]' : 'w-3 bg-white/10'}`} />
           ))}
         </div>
-        <div className="text-[9px] text-brand-zinc/30 font-black uppercase tracking-widest flex items-center gap-1.5">
-          <Timer className={`w-3 h-3 ${secondsRemaining < 20 ? 'text-red-500 animate-pulse' : ''}`} /> 
+        <div className="absolute top-10 right-0 text-[8px] text-brand-zinc/30 font-black uppercase tracking-widest flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full border border-white/5 backdrop-blur-sm">
+          <Timer className={`w-2.5 h-2.5 ${secondsRemaining < 20 ? 'text-red-500 animate-pulse' : ''}`} /> 
           ~{secondsRemaining} сек до финиша
         </div>
       </div>
@@ -261,30 +261,30 @@ export const Quiz = ({ onComplete }: { onComplete: (data: any) => void }) => {
       <AnimatePresence mode="wait">
         <motion.div 
           key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-          className="space-y-8"
+          className="space-y-6"
         >
-          <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight leading-tight max-w-[90%]">
+          <h3 className="text-xl font-display font-bold text-white uppercase tracking-tight leading-tight max-w-[90%]">
             {currentQuestionData.question}
           </h3>
-          <div className="grid gap-3">
+          <div className="grid gap-2.5">
             {currentQuestionData.options.map((opt: any) => {
               const label = typeof opt === 'string' ? opt : opt.label;
               return (
                 <button
                   key={label}
                   onClick={() => handleSelect(label)}
-                  className={`w-full p-6 rounded-2xl border transition-all flex items-center justify-between group ${
+                  className={`w-full p-5 rounded-xl border transition-all flex items-center justify-between group ${
                     answers[step] === label 
                     ? 'bg-brand-emerald/20 border-brand-emerald/50' 
                     : 'bg-white/5 border-white/10 hover:bg-brand-emerald/10 hover:border-brand-emerald/30'
                   }`}
                 >
-                  <span className={`font-bold text-sm uppercase tracking-wide transition-colors ${
+                  <span className={`font-bold text-xs uppercase tracking-wide transition-colors ${
                     answers[step] === label ? 'text-white' : 'text-brand-zinc group-hover:text-white'
                   }`}>
                     {label}
                   </span>
-                  <ArrowRight className={`w-5 h-5 transition-all transform ${
+                  <ArrowRight className={`w-4 h-4 transition-all transform ${
                     answers[step] === label ? 'text-brand-emerald translate-x-1' : 'text-brand-zinc/20 group-hover:text-brand-emerald group-hover:translate-x-1'
                   }`} />
                 </button>

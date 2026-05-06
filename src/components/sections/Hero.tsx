@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Check, ArrowDown, MessageCircle } from 'lucide-react';
 import { BlockWrapper } from '../ui/BlockWrapper';
 import { SpinningCoin } from '../ui/SpinningCoin';
+import { ScrollRouteLine } from '../ui/ScrollRouteLine';
 import { Quiz } from './Quiz';
 
 export const Hero = ({ 
@@ -15,15 +16,14 @@ export const Hero = ({
 }: any) => {
   return (
     <BlockWrapper className="min-h-[90dvh] flex flex-col justify-center">
+        {/* Red Route Line Background - Only for Hero/Top Area */}
+        <div className="absolute inset-0 pointer-events-none opacity-50 z-0">
+            <ScrollRouteLine />
+        </div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
 
             {/* Spinning Coin Section */}
             <SpinningCoin className="mb-10" />
-
-            <div className="flex items-center gap-3 mb-8">
-                <div className="w-2.5 h-2.5 rounded-full bg-brand-emerald shadow-[0_0_12px_#10b981]" />
-                <span className="font-mono text-[11px] text-brand-emerald uppercase tracking-[0.4em] font-black">Money Matrix Protocol v2.4.0</span>
-            </div>
 
             <h1 className="text-[2.6rem] font-display font-black leading-[1.05] mb-12 tracking-tighter text-white uppercase">
                 Ваш бизнес уже <span className="text-brand-emerald">заработал</span> больше, чем вы видите на счету.

@@ -1,94 +1,99 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, MessageCircle, Share2 } from 'lucide-react';
+import { X, MessageCircle, ArrowRight } from 'lucide-react';
 
-interface MenuPopupProps {
-    isOpen: boolean;
-    onClose: () => void;
-}
-
-export const MenuPopup = ({ isOpen, onClose }: MenuPopupProps) => {
+export const MenuPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
     const menuItems = [
         { label: 'Главная', id: 'home' },
-        { label: 'Об авторе', id: 'expert' },
+        { label: 'Об эксперте', id: 'expert' },
         { label: 'Кейсы', id: 'cases' },
         { label: 'Манифест', id: 'manifesto' },
         { label: 'Анти-цели', id: 'antitarget' },
-        { label: 'Метод', id: 'method' },
+        { label: 'Метод 7 источников', id: 'method' },
         { label: 'Калькулятор', id: 'calculator' },
         { label: 'Услуги', id: 'services' },
-        { label: 'Подарок', id: 'gift' },
+        { label: 'Спецпредложение', id: 'gift' },
         { label: 'Контакты', id: 'contacts' },
     ];
 
     const handleScroll = (id: string) => {
-        onClose();
-        setTimeout(() => {
-            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-        }, 300);
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            onClose();
+        }
     };
 
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div
+                <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[200] bg-brand-obsidian/95 backdrop-blur-xl flex flex-col"
+                    className="fixed inset-0 z-[200] bg-brand-obsidian flex flex-col"
                 >
-                    {/* Header */}
-                    <div className="flex justify-between items-center p-8 border-b border-white/5">
-                        <div className="flex items-center gap-3">
-                            <div className="w-2.5 h-2.5 rounded-full bg-brand-emerald shadow-[0_0_12px_#10b981]" />
-                            <span className="font-mono text-[11px] text-brand-emerald uppercase tracking-[0.4em] font-black">МЕНЮ</span>
+                    {/* Header inside Menu */}
+                    <div className="flex justify-between items-center px-6 py-5 border-b border-white/5">
+                        <div className="flex flex-col">
+                            <span className="text-xl font-display font-black text-brand-emerald uppercase tracking-tighter leading-none mb-1">МЕНЮ</span>
+                            <span className="font-mono text-[9px] text-brand-gold uppercase tracking-[0.4em] font-black">НАВИГАЦИЯ</span>
                         </div>
                         <button 
                             onClick={onClose}
-                            className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 text-white"
+                            className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group active:scale-95 transition-all"
                         >
-                            <X className="w-6 h-6" />
+                            <X className="w-6 h-6 text-brand-emerald group-hover:rotate-90 transition-transform" />
                         </button>
                     </div>
 
-                    {/* Content Scrollable */}
-                    <div className="flex-1 overflow-y-auto px-8 py-12 custom-scrollbar">
-                        <div className="space-y-2 mb-16">
-                            {menuItems.map((item, i) => (
+                    {/* Scrollable Content with Custom Scrollbar */}
+                    <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar">
+                        <nav className="flex flex-col gap-2">
+                            {menuItems.map((item, index) => (
                                 <motion.button
                                     key={item.id}
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.05 }}
+                                    transition={{ delay: index * 0.05 }}
                                     onClick={() => handleScroll(item.id)}
-                                    className="w-full text-left py-4 text-2xl font-display font-black text-white uppercase tracking-tighter hover:text-brand-emerald transition-colors flex items-center justify-between group"
+                                    className="flex items-center justify-between p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:bg-brand-emerald/10 hover:border-brand-emerald/30 transition-all group text-left"
                                 >
-                                    {item.label}
-                                    <div className="h-px flex-1 bg-white/5 mx-4 group-hover:bg-brand-emerald/20 transition-colors" />
-                                    <span className="font-mono text-[10px] text-brand-zinc/30">0{i + 1}</span>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-mono text-brand-zinc/30 font-black uppercase tracking-[0.2em]">0{index + 1}</span>
+                                        <span className="text-xl font-display font-bold text-white uppercase tracking-tight group-hover:text-brand-emerald transition-colors">{item.label}</span>
+                                    </div>
+                                    <ArrowRight className="w-6 h-6 text-brand-zinc/10 group-hover:text-brand-emerald group-hover:translate-x-2 transition-all" />
                                 </motion.button>
                             ))}
-                        </div>
+                        </nav>
 
-                        {/* Contacts Duplicate */}
-                        <div className="space-y-6">
-                            <div className="font-mono text-[10px] text-brand-emerald font-black uppercase tracking-widest opacity-50">Контакты</div>
-                            <div className="grid gap-4">
-                                <a href="https://t.me/monetizator_osipuk" className="flex items-center gap-4 p-5 rounded-2xl bg-white/5 border border-white/10">
-                                    <MessageCircle className="w-5 h-5 text-brand-emerald" />
-                                    <span className="font-bold text-white uppercase tracking-wider text-xs">@monetizator_osipuk</span>
-                                </a>
-                                <a href="https://wa.me/79219001331" className="flex items-center gap-4 p-5 rounded-2xl bg-white/5 border border-white/10">
-                                    <Share2 className="w-5 h-5 text-brand-emerald" />
-                                    <span className="font-bold text-white uppercase tracking-wider text-xs">WhatsApp</span>
-                                </a>
+                        {/* Contacts in Menu */}
+                        <div className="mt-12 p-8 rounded-[32px] bg-white/[0.02] border border-white/5 space-y-6">
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center border border-brand-gold/20">
+                                    <MessageCircle className="w-6 h-6 text-brand-gold" />
+                                </div>
+                                <span className="font-mono text-[10px] text-brand-gold uppercase tracking-[0.3em] font-black">Связь напрямую</span>
+                            </div>
+                            <div className="flex flex-col gap-3">
+                                <a href="https://t.me/monetizator_osipuk" className="w-full py-4 rounded-xl bg-brand-emerald text-black font-black uppercase text-[10px] tracking-widest text-center shadow-[0_0_20px_rgba(16,185,129,0.2)]">Telegram</a>
+                                <a href="https://wa.me/79119252525" className="w-full py-4 rounded-xl bg-white/5 border border-white/10 text-white font-black uppercase text-[10px] tracking-widest text-center">WhatsApp</a>
                             </div>
                         </div>
                     </div>
 
-                    {/* Footer in Menu */}
-                    <div className="p-8 border-t border-white/5 opacity-30">
-                        <div className="font-mono text-[9px] uppercase tracking-[0.6em] text-center font-black">MONETIZATOR // 2026</div>
-                    </div>
+                    <style>{`
+                        .custom-scrollbar::-webkit-scrollbar {
+                            width: 4px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-track {
+                            background: rgba(255, 255, 255, 0.02);
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-thumb {
+                            background: #10b981;
+                            border-radius: 10px;
+                        }
+                    `}</style>
                 </motion.div>
             )}
         </AnimatePresence>
