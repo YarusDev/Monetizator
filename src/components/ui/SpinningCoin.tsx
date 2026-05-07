@@ -19,7 +19,7 @@ export const SpinningCoin = ({ size = "w-48 h-48", className = "" }: { size?: st
             className="relative z-20"
         >
             <motion.img
-                src="assets/LogoCoin.png"
+                src="/assets/LogoCoin.png"
                 alt="Logo Coin"
                 animate={{ rotateY: [0, 360, 360] }}
                 transition={{

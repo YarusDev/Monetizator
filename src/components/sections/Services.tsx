@@ -17,18 +17,20 @@ interface Product {
 }
 
 export const Services = ({ block }: { block?: any }) => {
-    const [products, setProducts] = useState<Product[]>([]);
+    const content = block?.content || {};
+    const [dbProducts, setDbProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProducts = async () => {
+            setLoading(true);
             const { data } = await supabase
                 .from('m_products')
                 .select('*')
                 .eq('is_active', true)
                 .order('order_index', { ascending: true });
             
-            if (data) setProducts(data);
+            if (data) setDbProducts(data);
             setLoading(false);
         };
         fetchProducts();
@@ -40,40 +42,83 @@ export const Services = ({ block }: { block?: any }) => {
         </div>
     );
 
-    // Группировка продуктов по эшелонам согласно документации
-    const steps = [
-        { label: 'Эшелон 1: Точечные решения', color: 'text-brand-emerald', items: products.slice(0, 2) },
-        { label: 'Эшелон 2: Среда и стратегии', color: 'text-brand-gold', items: products.slice(2, 4) },
-        { label: 'Эшелон 3: Ведение и рост', color: 'text-brand-emerald', items: products.slice(4) },
-    ];
+    const getHydratedProduct = (p: any) => {
+        const pTitle = (p.title || '').trim().toLowerCase();
+        const dbP = dbProducts.find(item => {
+            if (p.id && item.id === p.id) return true;
+            const dbTitle = (item.title || '').trim().toLowerCase();
+            return dbTitle === pTitle || dbTitle.includes(pTitle) || pTitle.includes(dbTitle);
+        });
+        
+        if (!dbP) return p;
+        return {
+            ...p,
+            id: dbP.id,
+            image_url: dbP.image_url || p.image_url,
+            image: dbP.image_url || p.image || p.image_url,
+            description: p.description || dbP.description,
+            price: p.price || dbP.price,
+            currency: p.currency || dbP.currency
+        };
+    };
+
+    let steps: any[] = [];
+
+    if (block?.content?.echelons) {
+        steps = block.content.echelons.map((e: any, i: number) => ({
+            label: e.title || "",
+            description: e.description,
+            color: i === 1 ? 'text-brand-gold' : 'text-brand-emerald',
+            accentColor: i === 1 ? 'brand-gold' : 'brand-emerald',
+            items: (e.products || []).map(getHydratedProduct).filter((p: any) => p && p.title)
+        }));
+    } else {
+        // If no echelons, just show hydrated products directly if they exist in content
+        const contentProducts = block?.content?.products || [];
+        if (contentProducts.length > 0) {
+            steps = [{
+                label: "",
+                items: contentProducts.map(getHydratedProduct)
+            }];
+        }
+    }
 
     return (
         <BlockWrapper id="services">
             <SectionHeader 
-                title={block?.title || "Линейка продуктов"} 
-                subTitle={block?.subtitle || "От точечной диагностики до системного сопровождения."} 
+                title={content.title || ""} 
+                subTitle={content.subtitle || ""} 
             />
 
-            <div className="space-y-16">
+            <div className="space-y-20">
                 {steps.map((step, idx) => (
-                    <div key={idx} className="space-y-8">
+                    <div key={idx} className="space-y-10">
                         {step.items.length > 0 && (
                             <>
-                                <div className="flex items-center gap-4">
-                                    <div className="h-[1px] flex-1 bg-white/5" />
-                                    <span className={`font-mono text-[11px] ${step.color} font-black uppercase tracking-[0.3em]`}>{step.label}</span>
-                                    <div className="h-[1px] flex-1 bg-white/5" />
-                                </div>
+                                {step.label && (
+                                    <div className="space-y-4 text-center">
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-[1px] flex-1 bg-white/5" />
+                                            <span className={`font-mono text-[11px] ${step.color || 'text-brand-emerald'} font-black uppercase tracking-[0.3em]`}>{step.label}</span>
+                                            <div className="h-[1px] flex-1 bg-white/5" />
+                                        </div>
+                                        {step.description && (
+                                            <p className="text-brand-zinc/40 text-[10px] uppercase font-bold tracking-widest max-w-xs mx-auto leading-relaxed">
+                                                {step.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
 
                                 <div className="grid gap-6">
-                                    {step.items.map((p) => (
+                                    {step.items.map((p: any, pIdx: number) => (
                                         <ProductCard
-                                            key={p.id}
+                                            key={p.id || pIdx}
                                             name={p.title} 
-                                            price={`${p.price.toLocaleString()} ${p.currency === 'RUB' ? '₽' : p.currency}`}
-                                            img={p.image_url || `/assets/${p.title.split(' ')[0]}.jpg`} 
+                                            price={typeof p.price === 'number' ? `${p.price.toLocaleString()} ${p.currency === 'RUB' ? '₽' : p.currency || '₽'}` : p.price}
+                                            img={p.image_url || p.image} 
                                             desc={p.description}
-                                            accentColor={step.color.includes('gold') ? 'brand-gold' : 'brand-emerald'}
+                                            accentColor={step.accentColor || 'brand-emerald'}
                                         />
                                     ))}
                                 </div>

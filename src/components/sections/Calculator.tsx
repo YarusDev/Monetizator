@@ -14,11 +14,14 @@ export const Calculator = ({ block }: { block?: any }) => {
     const potentialRetention = currentRevenue * (retention / 100) * 1.5;
     const totalPotential = (leads * (potentialConv / 100) * avgCheck) + potentialRetention - currentRevenue;
 
+    const content = block?.content || {};
+
     return (
         <BlockWrapper id="calculator">
             <SectionHeader 
-                title={block?.title || "Ваши скрытые деньги"} 
-                subTitle={block?.subtitle || "Узнайте, сколько прибыли вы 'дарите' конкурентам из-за отсутствия системы."} 
+                title={content.title || ""} 
+                subTitle={content.subtitle || ""} 
+                align="center"
             />
 
             <div className="space-y-10">
@@ -62,16 +65,29 @@ export const Calculator = ({ block }: { block?: any }) => {
                         <BarChart3 className="w-16 h-16 text-brand-gold" />
                     </div>
                     <div className="relative z-10">
-                        <div className="text-xs font-black text-brand-gold uppercase tracking-widest mb-4">Ваш скрытый потенциал в год</div>
+                        <div className="text-xs font-black text-brand-gold uppercase tracking-widest mb-4">
+                            {content.potential_label || "Ваш скрытый потенциал в год"}
+                        </div>
                         <div className="text-5xl font-display font-black text-brand-gold mb-3 tracking-tighter whitespace-nowrap leading-none">
                             +{totalPotential.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽
                         </div>
-                        <div className="text-[11px] text-brand-zinc/50 uppercase font-bold tracking-widest">ДОПОЛНИТЕЛЬНО К ТЕКУЩЕЙ ПРИБЫЛИ</div>
+                        <div className="text-[11px] text-brand-zinc/50 uppercase font-bold tracking-widest">
+                            {content.footer_text || "ДОПОЛНИТЕЛЬНО К ТЕКУЩЕЙ ПРИБЫЛИ"}
+                        </div>
                     </div>
                 </div>
 
+                {content.button_text && (
+                    <button
+                        onClick={() => document.getElementById('gift')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="w-full h-20 emerald-gradient text-white rounded-2xl font-black text-base uppercase tracking-widest flex items-center justify-center gap-4 active:scale-95 transition-all shadow-2xl shadow-brand-emerald/30"
+                    >
+                        {content.button_text}
+                    </button>
+                )}
+
                 <p className="text-[10px] text-brand-zinc/30 leading-relaxed text-center uppercase tracking-widest font-bold">
-                    *Расчет произведен на основе потенциала роста показателей до 3.5x после внедрения системы монетизации
+                    {content.disclaimer || "*Расчет произведен на основе потенциала роста показателей после внедрения системы"}
                 </p>
             </div>
         </BlockWrapper>

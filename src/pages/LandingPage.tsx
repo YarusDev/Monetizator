@@ -18,12 +18,19 @@ import { InsightCard } from '../components/ui/InsightCard';
 import { useContentBlocks } from '../hooks/useContentBlocks';
 import { Loader2 } from 'lucide-react';
 
-const LandingPage: React.FC = () => {
+interface LandingPageProps {
+  isPreview?: boolean;
+  previewBlocks?: any[];
+}
+
+const LandingPage: React.FC<LandingPageProps> = ({ isPreview = false, previewBlocks = [] }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [insight, setInsight] = useState<any>(null);
-  const { sortedBlocks, loading } = useContentBlocks();
+  const { sortedBlocks: dbBlocks, loading } = useContentBlocks();
 
-  if (loading) return (
+  const sortedBlocks = isPreview ? previewBlocks : dbBlocks;
+
+  if (loading && !isPreview) return (
     <div className="h-screen w-full flex items-center justify-center bg-brand-obsidian">
       <Loader2 className="animate-spin text-brand-emerald w-12 h-12" />
     </div>
@@ -33,7 +40,7 @@ const LandingPage: React.FC = () => {
     if (!block.is_active) return null;
 
     const props = { block };
-    const id = `preview-${block.block_key}`;
+    const id = block.block_key;
 
     switch (block.block_key) {
       case 'header': 
@@ -78,7 +85,13 @@ const LandingPage: React.FC = () => {
         {sortedBlocks.map(block => renderBlock(block))}
       </main>
       
-      {isMenuOpen && <MenuPopup isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />}
+      {isMenuOpen && (
+        <MenuPopup 
+          isOpen={isMenuOpen} 
+          onClose={() => setIsMenuOpen(false)} 
+          config={sortedBlocks.find(b => b.block_key === 'header')?.content}
+        />
+      )}
 
       <AnimatePresence>
         {insight && (

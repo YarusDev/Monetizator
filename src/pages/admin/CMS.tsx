@@ -1,24 +1,34 @@
 import { useState, useEffect } from 'react';
-import { Database } from 'lucide-react';
-import { ProductManager } from '../../components/admin/crm/ProductManager';
-import { CaseManager } from '../../components/admin/crm/CaseManager';
-import { MatrixEditor } from '../../components/admin/crm/MatrixEditor';
+import { Database, Send } from 'lucide-react';
+import { ProductManager } from '../../components/admin/content-center/ProductManager';
+import { CaseManager } from '../../components/admin/content-center/CaseManager';
+import { ContactManager } from '../../components/admin/content-center/ContactManager';
+import { MatrixEditor } from '../../components/admin/content-center/MatrixEditor';
 import { supabase } from '../../lib/supabase';
 
 const CMSPage = () => {
-  const [activeTab, setActiveTab] = useState<'products' | 'cases' | 'blocks'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'cases' | 'contacts' | 'blocks'>('products');
   const [products, setProducts] = useState<any[]>([]);
   const [cases, setCases] = useState<any[]>([]);
+  const [contacts, setContacts] = useState<any[]>([]);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     setLoading(true);
+    
     const { data: prodData } = await supabase.from('m_products').select('*').order('order_index', { ascending: true });
     if (prodData) setProducts(prodData);
 
-    const { data: caseData } = await supabase.from('m_cases').select('*').order('order_index', { ascending: true });
+    const { data: caseData } = await supabase
+      .from('m_cases')
+      .select('*')
+      .order('case_number', { ascending: true });
+    
     if (caseData) setCases(caseData);
+
+    const { data: contactData } = await supabase.from('m_contacts').select('*').order('order_index', { ascending: true });
+    if (contactData) setContacts(contactData);
 
     const { data: blockData } = await supabase.from('m_content_blocks').select('*').order('order_index', { ascending: true });
     if (blockData) setBlocks(blockData);
@@ -57,6 +67,12 @@ const CMSPage = () => {
             Кейсы
           </button>
           <button 
+            onClick={() => setActiveTab('contacts')}
+            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'contacts' ? 'bg-[#00FFC2] text-black' : 'text-slate-500 hover:text-white'}`}
+          >
+            Мои контакты
+          </button>
+          <button 
             onClick={() => setActiveTab('blocks')}
             className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'blocks' ? 'bg-[#00FFC2] text-black' : 'text-slate-500 hover:text-white'}`}
           >
@@ -78,6 +94,10 @@ const CMSPage = () => {
 
           {activeTab === 'cases' && (
             <CaseManager cases={cases} onUpdate={fetchData} />
+          )}
+
+          {activeTab === 'contacts' && (
+            <ContactManager contacts={contacts} onUpdate={fetchData} />
           )}
 
           {activeTab === 'blocks' && (

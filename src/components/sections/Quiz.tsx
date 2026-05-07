@@ -115,6 +115,7 @@ const QUIZ_CONFIG = {
 };
 
 export const Quiz = ({ onComplete, onShowInsight, block }: { onComplete: (data: any) => void; onShowInsight: (insight: any) => void; block?: any }) => {
+  const content = block?.content || {};
   // Load state from localStorage
   const savedState = JSON.parse(localStorage.getItem('monetizator_quiz_state') || 'null');
   
@@ -151,13 +152,20 @@ export const Quiz = ({ onComplete, onShowInsight, block }: { onComplete: (data: 
 
   // Determine current question based on step and branch
   const currentQuestionData = useMemo(() => {
+    // Check if block has custom questions
+    if (block?.content?.questions && Array.isArray(block.content.questions) && block.content.questions.length > 0) {
+      return block.content.questions[step] || block.content.questions[0];
+    }
+
     if (step === 0) return QUIZ_CONFIG.initialQuestion;
     if (step === 4) return QUIZ_CONFIG.finalQuestion;
     if (branch && QUIZ_CONFIG.branches[branch as keyof typeof QUIZ_CONFIG.branches]) {
       return QUIZ_CONFIG.branches[branch as keyof typeof QUIZ_CONFIG.branches][step - 1];
     }
     return QUIZ_CONFIG.initialQuestion;
-  }, [step, branch]);
+  }, [step, branch, block?.content?.questions]);
+
+  const [isFinished, setIsFinished] = useState(false);
 
   const next = (answerLabel?: string) => {
     const newAnswers = [...answers];
@@ -172,6 +180,7 @@ export const Quiz = ({ onComplete, onShowInsight, block }: { onComplete: (data: 
     }
 
     if (step === 4) {
+      setIsFinished(true);
       onComplete(newAnswers);
       localStorage.removeItem('monetizator_quiz_state');
     } else {
@@ -198,17 +207,75 @@ export const Quiz = ({ onComplete, onShowInsight, block }: { onComplete: (data: 
     }
   };
 
+  if (isFinished) {
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="bg-brand-charcoal/50 border border-brand-emerald/30 rounded-[40px] p-8 relative overflow-hidden shadow-2xl backdrop-blur-md text-center">
+            <div className="w-20 h-20 bg-brand-emerald/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-brand-emerald/40">
+                <Timer className="w-10 h-10 text-brand-emerald" />
+            </div>
+            <h3 className="text-2xl font-display font-black text-white uppercase tracking-tighter mb-4">
+                План готов!
+            </h3>
+            <p className="text-brand-zinc/60 mb-8 max-w-xs mx-auto text-sm">
+                Я проанализировал ваши ответы. Оставьте контакт, чтобы я прислал вам PDF-карту с вашими 7 источниками прибыли.
+            </p>
+            
+            <div className="space-y-4">
+                <input 
+                    type="text" 
+                    placeholder="Ваше имя" 
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl h-14 px-6 text-white focus:border-brand-emerald/50 outline-none transition-all"
+                />
+                <input 
+                    type="text" 
+                    placeholder="Telegram / Телефон" 
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl h-14 px-6 text-white focus:border-brand-emerald/50 outline-none transition-all"
+                />
+                <button 
+                    className="w-full h-16 bg-brand-emerald text-brand-obsidian font-black rounded-2xl uppercase tracking-widest hover:shadow-[0_0_20px_#10b981] transition-all"
+                    onClick={() => window.location.href = 'https://t.me/monetizator_osipuk'}
+                >
+                    Получить результат
+                </button>
+            </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {block && (
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter mb-4">{block.title}</h2>
-          <p className="text-brand-zinc/50 text-base max-w-md mx-auto">{block.subtitle}</p>
+        <div className="text-center mb-12 px-4">
+          <h2 className="text-3xl font-display font-black text-white uppercase tracking-tighter mb-4 leading-tight">
+            {content.title || ""}
+          </h2>
+          {content.description && (
+            <p className="text-brand-zinc/50 text-base max-w-xl mx-auto font-medium leading-relaxed">
+              {content.description}
+            </p>
+          )}
         </div>
       )}
-      <div className="bg-brand-charcoal/50 border border-white/5 rounded-[40px] p-8 relative overflow-hidden shadow-2xl backdrop-blur-md">
+
+      {block?.content?.image && (
+        <div className="relative max-w-2xl mx-auto mb-8 group">
+          <div className="absolute -inset-4 bg-brand-emerald/10 blur-[100px] rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
+          <div className="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl">
+            <img 
+              src={block.content.image.startsWith('assets/') ? `/${block.content.image}` : block.content.image} 
+              className="w-full h-full object-cover animate-in fade-in zoom-in-95 duration-1000" 
+              alt="Quiz Preview" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-obsidian via-transparent to-transparent opacity-60" />
+          </div>
+        </div>
+      )}
+
+      <div className="bg-brand-charcoal/50 border border-white/5 rounded-[40px] p-6 md:p-8 relative overflow-hidden shadow-2xl backdrop-blur-md">
       {/* Activity Widget */}
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-10 hidden md:block">
         <motion.div 
           animate={{ y: [0, -4, 0] }}
           transition={{ duration: 4, repeat: Infinity }}
@@ -216,20 +283,20 @@ export const Quiz = ({ onComplete, onShowInsight, block }: { onComplete: (data: 
         >
           <UsersIcon className="w-3 h-3 text-brand-emerald" />
           <span className="text-[10px] font-black text-brand-emerald uppercase tracking-widest">
-            {activeUsers} человек проходят этот аудит
+            {activeUsers} проходят
           </span>
         </motion.div>
       </div>
 
-      <div className="flex justify-between items-start mb-10 pr-20 relative">
-        <div className="flex gap-1.5 pt-4">
+      <div className="flex justify-between items-center mb-10 relative mt-2">
+        <div className="flex gap-1.5">
           {[0, 1, 2, 3, 4].map((i) => (
             <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === step ? 'w-8 bg-brand-emerald shadow-[0_0_10px_#10b981]' : 'w-3 bg-white/10'}`} />
           ))}
         </div>
-        <div className="absolute top-4 right-0 text-[8px] text-brand-zinc/30 font-black uppercase tracking-widest flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full border border-white/5 backdrop-blur-sm">
+        <div className="text-[8px] text-brand-zinc/30 font-black uppercase tracking-widest flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-full border border-white/5 backdrop-blur-sm">
           <Timer className={`w-2.5 h-2.5 ${secondsRemaining < 20 ? 'text-red-500 animate-pulse' : ''}`} /> 
-          ~{secondsRemaining} сек до финиша
+          ~{secondsRemaining} сек
         </div>
       </div>
 
@@ -238,7 +305,7 @@ export const Quiz = ({ onComplete, onShowInsight, block }: { onComplete: (data: 
           key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
           className="space-y-6"
         >
-          <h3 className="text-xl font-display font-bold text-white uppercase tracking-tight leading-tight max-w-[90%]">
+          <h3 className="text-lg md:text-xl font-display font-bold text-white uppercase tracking-tight leading-tight">
             {currentQuestionData.question}
           </h3>
           <div className="grid gap-2.5">
@@ -248,18 +315,18 @@ export const Quiz = ({ onComplete, onShowInsight, block }: { onComplete: (data: 
                 <button
                   key={label}
                   onClick={() => handleSelect(label)}
-                  className={`w-full p-5 rounded-xl border transition-all flex items-center justify-between group ${
+                  className={`w-full p-4 md:p-5 rounded-xl border transition-all flex items-center justify-between group ${
                     answers[step] === label 
                     ? 'bg-brand-emerald/20 border-brand-emerald/50' 
                     : 'bg-white/5 border-white/10 hover:bg-brand-emerald/10 hover:border-brand-emerald/30'
                   }`}
                 >
-                  <span className={`font-bold text-xs uppercase tracking-wide transition-colors ${
+                  <span className={`font-bold text-[10px] md:text-xs uppercase tracking-wide transition-colors text-left pr-4 ${
                     answers[step] === label ? 'text-white' : 'text-brand-zinc group-hover:text-white'
                   }`}>
                     {label}
                   </span>
-                  <ArrowRight className={`w-4 h-4 transition-all transform ${
+                  <ArrowRight className={`w-4 h-4 shrink-0 transition-all transform ${
                     answers[step] === label ? 'text-brand-emerald translate-x-1' : 'text-brand-zinc/20 group-hover:text-brand-emerald group-hover:translate-x-1'
                   }`} />
                 </button>

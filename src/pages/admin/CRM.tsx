@@ -8,7 +8,7 @@ import { KanbanBoard } from '../../components/admin/crm/KanbanBoard';
 import { ClientManager } from '../../components/admin/crm/ClientManager';
 import { FinanceManager } from '../../components/admin/crm/FinanceManager';
 import { TasksManager } from '../../components/admin/crm/TasksManager';
-import { ProductManager } from '../../components/admin/crm/ProductManager';
+import { ProductManager } from '../../components/admin/content-center/ProductManager';
 import { 
   CreateDealModal, 
   TaskModal, 

@@ -4,9 +4,11 @@ export const ProductCard = ({ name, price, img, desc, accentColor = "brand-emera
     const isGold = accentColor === "brand-gold";
     return (
         <div className={`glass-card overflow-hidden group flex flex-col h-full border-white/10 ${isGold ? 'bg-brand-gold/[0.02] border-brand-gold/20' : ''}`}>
-            <div className="aspect-video overflow-hidden">
-                <img src={img} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-            </div>
+            {img && (
+                <div className="aspect-video overflow-hidden">
+                    <img src={img} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                </div>
+            )}
             <div className="p-8 flex flex-col flex-1">
                 <div className="flex justify-between items-start mb-4 gap-4">
                     <h4 className="text-xl font-black text-white uppercase tracking-tight leading-tight flex-1">{name}</h4>

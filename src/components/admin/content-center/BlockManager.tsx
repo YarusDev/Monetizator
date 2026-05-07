@@ -223,8 +223,7 @@ export const BlockManager = ({ blocks, onUpdate }: { blocks: ContentBlock[], onU
                   </div>
                 ) : (
                   <div>
-                    <div className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-1">{block.block_key}</div>
-                    <h3 className="text-lg font-black text-white">{block.title || 'Без названия'}</h3>
+                    <h3 className="text-lg font-black text-white">{block.title}</h3>
                     <p className="text-xs text-slate-500 line-clamp-1">{block.subtitle || 'Нет подзаголовка'}</p>
                   </div>
                 )}

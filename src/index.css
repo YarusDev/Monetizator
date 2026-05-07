@@ -12,6 +12,8 @@
   --color-brand-charcoal: #0a0a0a;
   --color-brand-zinc: #f4f4f5;
   --color-brand-slate: #71717a;
+  --color-brand-red: #ef4444;
+  --color-brand-red-dim: #450a0a;
   
   /* Typography - switching to Geist for a more modern, premium feel */
   --font-sans: "Geist", "Inter", system-ui, sans-serif;
@@ -47,6 +49,7 @@ body {
   box-shadow: 0 0 100px rgba(0, 0, 0, 0.8);
   overflow-x: hidden;
   min-height: 100dvh;
+  position: relative;
   background-color: var(--color-brand-obsidian);
 }
 

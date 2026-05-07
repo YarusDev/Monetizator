@@ -8,15 +8,12 @@ export const Footer = ({ block }: { block?: any }) => {
                 <div className="flex flex-col items-center gap-6 w-full opacity-30">
                     <div className="flex flex-col items-center gap-2">
                         <div className="font-mono text-[9px] uppercase tracking-[0.5em] text-white font-black text-center">
-                            {block?.content?.legal_info || "ИП ОСИПУК С.В. ИНН: 780436856525 // ОГРНИП: 323784700143891"}
+                            {block?.content?.legal_info || ""}
                         </div>
                     </div>
 
                     <div className="flex gap-8">
-                        {(block?.content?.links || [
-                            { label: "Политика конфиденциальности", url: "#" },
-                            { label: "Договор оферты", url: "#" }
-                        ]).map((link: any, i: number) => (
+                        {(block?.content?.links || []).map((link: any, i: number) => (
                             <a key={i} href={link.url} className="font-mono text-[8px] uppercase tracking-widest hover:text-brand-emerald transition-colors">
                                 {link.label}
                             </a>
@@ -24,7 +21,7 @@ export const Footer = ({ block }: { block?: any }) => {
                     </div>
 
                     <div className="font-mono text-[8px] uppercase tracking-[0.6em] text-center font-black">
-                        {block?.content?.copyright || "MONETIZATOR // 2026 © Все права защищены"}
+                        {block?.content?.copyright || ""}
                     </div>
                 </div>
 
